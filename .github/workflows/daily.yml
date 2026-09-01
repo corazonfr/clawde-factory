@@ -52,7 +52,11 @@ jobs:
 
       - name: Render
         run: node scripts/render.mjs --config config.json --out out/
-
+      - name: Test R2 reachability
+        env:
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+        run: |
+          curl -sSv -o /dev/null "https://$R2_ACCOUNT_ID.r2.cloudflarestorage.com" 2>&1 | tail -20
       - name: Upload to R2
         env:
           R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
