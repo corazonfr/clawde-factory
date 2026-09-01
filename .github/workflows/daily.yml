@@ -30,8 +30,7 @@ jobs:
       # ffmpeg is preinstalled on ubuntu-latest runners, but fail loud if not
       - name: Check ffmpeg
         run: ffmpeg -version | head -1
-
-           - name: Write a fixed test concept
+      - name: Write a fixed test concept
         run: |
           SLUG="$(date -u +%Y-%m-%d-%H%M)"
           cat > config.json <<EOF
