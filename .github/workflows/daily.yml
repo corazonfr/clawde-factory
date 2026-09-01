@@ -27,9 +27,12 @@ jobs:
       - name: Install deps
         run: npm ci || npm install puppeteer
 
-      # ffmpeg is preinstalled on ubuntu-latest runners, but fail loud if not
-      - name: Check ffmpeg
-        run: ffmpeg -version | head -1
+      - name: Install ffmpeg
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          ffmpeg -version | head -1
+
       - name: Write a fixed test concept
         run: |
           SLUG="$(date -u +%Y-%m-%d-%H%M)"
