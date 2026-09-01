@@ -32,7 +32,7 @@ const acct = process.env.R2_ACCOUNT_ID
   .replace(/\.r2\.cloudflarestorage\.com\/?$/, "");
 
 const endpoint = `https://${acct}.r2.cloudflarestorage.com`;
-console.log("connecting to:", endpoint);
+console.error("connecting to:", endpoint);
 
 const key = `clips/${basename(file)}`;
 
