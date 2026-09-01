@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 // Uploads the rendered mp4 to Cloudflare R2 and prints its public URL.
-// R2 speaks the S3 API, so the standard AWS SDK works against it.
 
 import { readFileSync, existsSync } from "node:fs";
 import { resolve, basename } from "node:path";
@@ -26,10 +25,8 @@ if (missing.length) {
   process.exit(1);
 }
 
-const key = `clips/${basename(file)}`;
-
-// Accept the account ID in any form Cloudflare's dashboard might hand you.
-const acct = (process.env.R2_ACCOUNT_ID || "")
+// Accept the account ID in whatever form the dashboard handed over.
+const acct = process.env.R2_ACCOUNT_ID
   .trim()
   .replace(/^https?:\/\//, "")
   .replace(/\.r2\.cloudflarestorage\.com\/?$/, "");
@@ -37,25 +34,25 @@ const acct = (process.env.R2_ACCOUNT_ID || "")
 const endpoint = `https://${acct}.r2.cloudflarestorage.com`;
 console.log("connecting to:", endpoint);
 
+const key = `clips/${basename(file)}`;
+
 const s3 = new S3Client({
   region: "auto",
   endpoint,
   credentials: {
-    accessKeyId: (process.env.R2_ACCESS_KEY_ID || "").trim(),
-    secretAccessKey: (process.env.R2_SECRET_ACCESS_KEY || "").trim(),
+    accessKeyId: process.env.R2_ACCESS_KEY_ID.trim(),
+    secretAccessKey: process.env.R2_SECRET_ACCESS_KEY.trim(),
   },
-});
 });
 
 await s3.send(
   new PutObjectCommand({
-    Bucket: process.env.R2_BUCKET,
+    Bucket: process.env.R2_BUCKET.trim(),
     Key: key,
     Body: readFileSync(file),
     ContentType: "video/mp4",
   })
 );
 
-// PostPeer fetches this URL itself, so it has to be publicly readable.
-const url = `${process.env.R2_PUBLIC_URL.replace(/\/$/, "")}/${key}`;
+const url = `${process.env.R2_PUBLIC_URL.trim().replace(/\/$/, "")}/${key}`;
 console.log(url);
