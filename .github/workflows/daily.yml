@@ -31,28 +31,21 @@ jobs:
       - name: Check ffmpeg
         run: ffmpeg -version | head -1
 
-      # Uses your Claude subscription via an OAuth token — no API key, no
-      # separate billing account. Generate the token locally with:
-      #   claude setup-token
-      # then save it as the CLAUDE_CODE_OAUTH_TOKEN repo secret.
-      - name: Write this run's concept
-        uses: anthropics/claude-code-action@v1
-        with:
-          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          prompt: |
-            Read references/channel.md and list the files in scenes/.
-            Pick this run's video following the rules in that file:
-            do not reuse a scene from the last 6 logged posts, and do not
-            reuse the previous post's hook shape.
-            Write the result to config.json in the repo root, matching the
-            shape documented in SKILL.md (date, slug, scene, hook, caption,
-            palette, duration, hookShape). Use today's date and a slug of
-            YYYY-MM-DD-HHMM in UTC. Write nothing else.
-
-      - name: Check the concept file
+           - name: Write a fixed test concept
         run: |
-          test -f config.json || { echo "no config.json was written"; exit 1; }
-          node -e "const c=require('./config.json');if(!c.scene||!c.hook)throw new Error('config.json is missing scene or hook');"
+          SLUG="$(date -u +%Y-%m-%d-%H%M)"
+          cat > config.json <<EOF
+          {
+            "date": "$(date -u +%F)",
+            "slug": "$SLUG",
+            "scene": "scenes/bounce.html",
+            "hook": "pipeline test, ignore",
+            "caption": "pipeline test",
+            "palette": { "bg": "#0f0e17", "fg": "#ff8906", "accent": "#e53170" },
+            "duration": 6,
+            "privacyLevel": "SELF_ONLY"
+          }
+          EOF
           cat config.json
 
       - name: Render
