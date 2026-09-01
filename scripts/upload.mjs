@@ -28,13 +28,23 @@ if (missing.length) {
 
 const key = `clips/${basename(file)}`;
 
+// Accept the account ID in any form Cloudflare's dashboard might hand you.
+const acct = (process.env.R2_ACCOUNT_ID || "")
+  .trim()
+  .replace(/^https?:\/\//, "")
+  .replace(/\.r2\.cloudflarestorage\.com\/?$/, "");
+
+const endpoint = `https://${acct}.r2.cloudflarestorage.com`;
+console.log("connecting to:", endpoint);
+
 const s3 = new S3Client({
   region: "auto",
-   endpoint: `https://${process.env.R2_ACCOUNT_ID.trim()}.r2.cloudflarestorage.com`,
+  endpoint,
   credentials: {
-    accessKeyId: process.env.R2_ACCESS_KEY_ID.trim(),
-    secretAccessKey: process.env.R2_SECRET_ACCESS_KEY.trim(),
+    accessKeyId: (process.env.R2_ACCESS_KEY_ID || "").trim(),
+    secretAccessKey: (process.env.R2_SECRET_ACCESS_KEY || "").trim(),
   },
+});
 });
 
 await s3.send(
