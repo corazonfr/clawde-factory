@@ -1,0 +1,137 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  html, body { margin: 0; padding: 0; background: #000; overflow: hidden; }
+  canvas { display: block; width: 1080px; height: 1920px; }
+</style>
+</head>
+<body>
+<canvas id="stage" width="1080" height="1920"></canvas>
+<script>
+// PLACEHOLDER SCENE. Stand-in geometry so the render pipeline is testable
+// before the real Clawde art exists. Replace the drawClawde() body with the
+// actual character — everything else here is the pattern to copy.
+
+const cfg = window.CLAWDE_CONFIG ?? {};
+const hook = cfg.hook ?? "placeholder hook text";
+const pal = cfg.palette ?? { bg: "#0f0e17", fg: "#ff8906", accent: "#e53170" };
+
+const c = document.getElementById("stage");
+const ctx = c.getContext("2d");
+const W = 1080, H = 1920;
+
+// deterministic pseudo-random, seeded — never Math.random()
+function rnd(seed) {
+  const x = Math.sin(seed * 12.9898) * 43758.5453;
+  return x - Math.floor(x);
+}
+
+const easeOut = (p) => 1 - Math.pow(1 - p, 3);
+
+function drawClawde(t, x, y, squash) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(1 / squash, squash);
+
+  ctx.fillStyle = pal.fg;
+  ctx.beginPath();
+  ctx.arc(0, 0, 170, 0, Math.PI * 2);
+  ctx.fill();
+
+  // eyes track the arc slightly
+  const look = Math.sin(t * 2.2) * 14;
+  ctx.fillStyle = pal.bg;
+  ctx.beginPath();
+  ctx.arc(-58 + look, -30, 26, 0, Math.PI * 2);
+  ctx.arc(58 + look, -30, 26, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.strokeStyle = pal.bg;
+  ctx.lineWidth = 12;
+  ctx.lineCap = "round";
+  ctx.beginPath();
+  ctx.arc(0, 30, 62, 0.15 * Math.PI, 0.85 * Math.PI);
+  ctx.stroke();
+
+  ctx.restore();
+}
+
+function renderFrame(t) {
+  const D = window.CLAWDE.duration;
+
+  ctx.fillStyle = pal.bg;
+  ctx.fillRect(0, 0, W, H);
+
+  // drifting accent dots — seeded, so re-renders match exactly
+  for (let i = 0; i < 40; i++) {
+    const sx = rnd(i + 1) * W;
+    const sy = (rnd(i + 7) * H + t * 40 * (0.4 + rnd(i + 3))) % H;
+    ctx.globalAlpha = 0.18 + rnd(i + 11) * 0.2;
+    ctx.fillStyle = pal.accent;
+    ctx.beginPath();
+    ctx.arc(sx, sy, 3 + rnd(i + 5) * 5, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+
+  // bounce driven purely by t
+  const period = 1.1;
+  const phase = (t % period) / period;
+  const height = 420;
+  const groundY = H * 0.62;
+  const y = groundY - Math.sin(phase * Math.PI) * height;
+  const impact = Math.max(0, 1 - Math.abs(phase - 0) * 6, 1 - Math.abs(phase - 1) * 6);
+  const squash = 1 - impact * 0.22;
+  const x = W / 2 + Math.sin(t * 0.8) * 120;
+
+  // shadow
+  ctx.globalAlpha = 0.25;
+  ctx.fillStyle = "#000";
+  ctx.beginPath();
+  ctx.ellipse(x, groundY + 180, 150 * (0.6 + impact * 0.5), 26, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.globalAlpha = 1;
+
+  drawClawde(t, x, y, squash);
+
+  // hook text drops in over the first 0.6s, holds, never leaves
+  const intro = easeOut(Math.min(1, t / 0.6));
+  ctx.save();
+  ctx.globalAlpha = intro;
+  ctx.translate(0, (1 - intro) * -60);
+  ctx.fillStyle = "#fff";
+  ctx.font = "700 76px system-ui, -apple-system, sans-serif";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "top";
+  wrap(hook, W / 2, 260, W - 160, 92);
+  ctx.restore();
+
+  // last-beat flash so the loop point reads
+  if (t > D - 0.25) {
+    ctx.globalAlpha = (t - (D - 0.25)) / 0.25 * 0.5;
+    ctx.fillStyle = pal.accent;
+    ctx.fillRect(0, 0, W, H);
+    ctx.globalAlpha = 1;
+  }
+}
+
+function wrap(text, x, y, maxW, lh) {
+  const words = String(text).split(" ");
+  let line = "", lines = [];
+  for (const w of words) {
+    const test = line ? line + " " + w : w;
+    if (ctx.measureText(test).width > maxW && line) { lines.push(line); line = w; }
+    else line = test;
+  }
+  lines.push(line);
+  lines.forEach((l, i) => ctx.fillText(l, x, y + i * lh));
+}
+
+document.fonts.ready.then(() => {
+  window.CLAWDE = { duration: cfg.duration ?? 8, fps: 30, renderFrame };
+});
+</script>
+</body>
+</html>

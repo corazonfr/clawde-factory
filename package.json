@@ -1,0 +1,14 @@
+{
+  "name": "clawde-factory",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "render": "node scripts/render.mjs --config config.json --out out/",
+    "upload": "node scripts/upload.mjs",
+    "post": "node scripts/post.mjs"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.658.0",
+    "puppeteer": "^23.0.0"
+  }
+}

@@ -1,0 +1,94 @@
+name: clawde daily
+
+on:
+  schedule:
+    # Plain interval. UTC, but interval crons don't care about timezones or DST.
+    # Every 12h (2 posts/day) — recommended starting cadence.
+    - cron: "0 */12 * * *"
+    # Every 5h (4.8 posts/day) — swap to this once you have 15+ scenes.
+    # - cron: "0 */5 * * *"
+  workflow_dispatch:        # manual run button
+
+jobs:
+  make-and-post:
+    runs-on: ubuntu-latest
+    concurrency:
+      # Two runs must never render at once — they'd pick the same scene and
+      # both push to the log, and one push would lose.
+      group: clawde-daily
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install deps
+        run: npm ci || npm install puppeteer
+
+      # ffmpeg is preinstalled on ubuntu-latest runners, but fail loud if not
+      - name: Check ffmpeg
+        run: ffmpeg -version | head -1
+
+      # Uses your Claude subscription via an OAuth token — no API key, no
+      # separate billing account. Generate the token locally with:
+      #   claude setup-token
+      # then save it as the CLAUDE_CODE_OAUTH_TOKEN repo secret.
+      - name: Write this run's concept
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          prompt: |
+            Read references/channel.md and list the files in scenes/.
+            Pick this run's video following the rules in that file:
+            do not reuse a scene from the last 6 logged posts, and do not
+            reuse the previous post's hook shape.
+            Write the result to config.json in the repo root, matching the
+            shape documented in SKILL.md (date, slug, scene, hook, caption,
+            palette, duration, hookShape). Use today's date and a slug of
+            YYYY-MM-DD-HHMM in UTC. Write nothing else.
+
+      - name: Check the concept file
+        run: |
+          test -f config.json || { echo "no config.json was written"; exit 1; }
+          node -e "const c=require('./config.json');if(!c.scene||!c.hook)throw new Error('config.json is missing scene or hook');"
+          cat config.json
+
+      - name: Render
+        run: node scripts/render.mjs --config config.json --out out/
+
+      - name: Upload to R2
+        env:
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          R2_BUCKET: ${{ secrets.R2_BUCKET }}
+          R2_PUBLIC_URL: ${{ secrets.R2_PUBLIC_URL }}
+        run: |
+          SLUG=$(node -p "require('./config.json').slug")
+          URL=$(node scripts/upload.mjs --file "out/$SLUG.mp4")
+          echo "VIDEO_URL=$URL" >> "$GITHUB_ENV"
+          echo "uploaded: $URL"
+
+      - name: Post to TikTok
+        env:
+          POSTPEER_API_KEY: ${{ secrets.POSTPEER_API_KEY }}
+          TIKTOK_ACCOUNT_ID: ${{ secrets.TIKTOK_ACCOUNT_ID }}
+        run: node scripts/post.mjs --url "$VIDEO_URL" --config config.json
+
+      - name: Keep the mp4 even if posting fails
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: clawde-${{ github.run_number }}
+          path: out/*.mp4
+
+      - name: Commit the posting log
+        run: |
+          git pull --rebase || true
+          git config user.name "clawde-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add references/channel.md config.json
+          git commit -m "clawde: $(date -u +%F)" || echo "nothing to commit"
+          git push
