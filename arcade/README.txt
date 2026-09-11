@@ -1,71 +1,87 @@
-====================================================
-  NEON ARCADE  ·  16 games, one folder, zero internet
-====================================================
+==========================================================
+  NEON ARCADE
+  52 game sites in one launcher + 16 offline backup games
+==========================================================
 
-HOW TO PLAY
------------
-1. Unzip this folder anywhere you like (Desktop, USB stick, wherever).
+HOW TO USE
+----------
+1. Unzip this folder anywhere (Desktop, USB stick, wherever).
 2. Double-click  index.html
-3. That's it. It opens in your browser and everything works.
+3. Click any card. It opens that site in a new tab.
 
-No installing, no server, no wifi, no accounts. Every game is a plain
-HTML file you can open directly — you can even double-click any file
-inside /games and play just that one.
-
-
-WHAT'S INSIDE
--------------
-index.html ............ the arcade hub (search, filters, favourites)
-assets/ ............... shared stylesheet + tiny shared runtime
-games/ ................ one self-contained HTML file per game
-
-  snake.html .......... Neon Snake      grow without biting yourself
-  tetra.html .......... Tetra Blocks    falling blocks, hold + ghost piece
-  2048.html ........... 2048            slide and merge to 2048
-  breakout.html ....... Brick Blaster   paddle, bricks, power-ups
-  flappy.html ......... Flap Dash       one button, infinite pipes
-  minesweeper.html .... Minesweeper     3 board sizes, first click is safe
-  pong.html ........... Pong Duel       1P vs CPU or 2P on one keyboard
-  invaders.html ....... Space Invaders  waves, bunkers, bonus saucer
-  memory.html ......... Memory Match    3 board sizes, fewest moves wins
-  jumper.html ......... Sky Jumper      endless upward platform hopping
-  asteroids.html ...... Asteroids       drift physics + hyperspace
-  tictactoe.html ...... Tic Tac Toe     unbeatable minimax CPU, or 2P
-  connect4.html ....... Connect Four    alpha-beta CPU, 3 difficulties
-  reflex.html ......... Reflex Grid     30-second combo chase
-  runner.html ......... Dash Runner     jump/duck endless runner
-  simon.html .......... Simon Says      growing pattern memory
+No install, no server, no account. The launcher itself is a plain
+HTML file, so it opens straight off your disk.
 
 
-CONTROLS
---------
-Every game lists its own controls under the play area. In general:
-  arrows / WASD ... move          Space ... action, jump, fire, drop
-  P ............... pause         Enter ... restart after a game over
-On phones and tablets, on-screen buttons and swipes appear automatically.
+WHAT'S IN HERE
+--------------
+index.html ........ THE LAUNCHER — 52 game sites, sorted and searchable
+offline.html ...... 16 complete games that need no internet at all
+assets/ ........... stylesheet, site directory, shared scripts
+games/ ............ the 16 offline games, one HTML file each
 
 
-SCORES
-------
-High scores and favourites are saved in your browser's local storage.
-They stay on this machine, are never uploaded anywhere, and only apply
-to the browser you played in. Clearing site data resets them.
+THE LAUNCHER
+------------
+Sites are grouped into five categories:
 
-Tip: if you open the pages from a file:// path, some browsers share one
-storage bucket across all local files — that is normal and harmless.
+  Archives .......... the big community game collections, several of
+                      them hosted on GitHub Pages (3kh0, Selenite,
+                      Kazwire, UBG98, UBG365)
+  Portals ........... the mainstream free sites — Poki, CrazyGames,
+                      Coolmath, Kongregate, itch.io, Newgrounds,
+                      Armor Games, Scratch and more
+  Retro ............. emulators and preserved classics — Archive.org's
+                      MS-DOS library, Console Living Room, js-dos,
+                      EmulatorJS, Minecraft Classic
+  Multiplayer ....... the .io rooms — Slither, Krunker, Shell Shockers,
+                      Agar, Diep, Skribbl, Gartic Phone
+  Classics .......... single legendary games — 2048, Lichess, Jstris,
+                      neal.fun, Cookie Clicker, A Dark Room, Sandspiel
+
+Features:
+  - type to search, or press "/" from anywhere
+  - filter by category
+  - click the heart on a card to pin it to the top
+  - "Surprise me" opens a random site
+  - recently opened sites get their own row
 
 
-TROUBLESHOOTING
----------------
-Nothing loads / no styling
-  Keep the folder structure intact. index.html needs assets/ and games/
-  sitting next to it. Unzip the whole thing rather than dragging out a
-  single file.
+THE "CHECK WHICH ONES WORK" BUTTON
+----------------------------------
+Game sites move, rebrand and vanish constantly, and every network
+blocks a different set of them. So the launcher can test them for you:
 
-No sound
-  Browsers block audio until you interact with the page. Click once and
-  the blips will start.
+  green dot  = the site answered your browser
+  amber dot  = it answered, but slowly
+  red dot    = no answer — blocked on this network, or the site moved
 
-Safari and local files
-  Safari is strict about file:// storage. Games still play fine, but high
-  scores may not persist. Chrome, Edge and Firefox save them fine.
+The test runs from YOUR machine, not from anywhere else, and only
+learns whether each host replied. Nothing is uploaded or reported.
+If a card goes red, try another one in the same category — that's
+exactly why there are five archives instead of one.
+
+Every link in the directory responded when this folder was built.
+That was a point-in-time check; the button is the live one.
+
+
+IF NOTHING LOADS AT ALL
+-----------------------
+Open offline.html instead. Sixteen complete games live inside this
+folder and run with no network whatsoever: snake, tetris, 2048,
+breakout, flappy, minesweeper, pong, space invaders, memory match,
+sky jumper, asteroids, tic tac toe, connect four, reflex grid, an
+endless runner and simon.
+
+
+NOTES
+-----
+- Pins and history are saved in your browser's local storage. They stay
+  on this machine and are never uploaded.
+- Keep the folder together — index.html needs assets/ and games/ next
+  to it. Unzip the whole thing rather than dragging one file out.
+- Sound in the offline games starts after your first click; browsers
+  block audio until you interact with the page.
+- These are third-party sites. They set their own ads, cookies and
+  terms, and whether you are allowed to use them on a given network
+  is between you and whoever runs that network.

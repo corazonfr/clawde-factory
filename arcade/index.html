@@ -3,7 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>NEON ARCADE — 16 games, zero loading screens</title>
+<meta name="referrer" content="no-referrer">
+<title>NEON ARCADE — 52 game sites, one launcher</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🕹️</text></svg>">
 <link rel="stylesheet" href="assets/hub.css">
 </head>
@@ -14,7 +15,7 @@
     <a class="brand" href="index.html"><span class="logo">🕹️</span> NEON <span class="g">ARCADE</span></a>
     <div class="search">
       <span class="ic">🔎</span>
-      <input id="search" type="text" placeholder="Search games…  (press / )" autocomplete="off" spellcheck="false">
+      <input id="search" type="text" placeholder="Search sites…  (press / )" autocomplete="off" spellcheck="false">
     </div>
     <div class="count" id="count"></div>
   </div>
@@ -23,43 +24,66 @@
 <div class="wrap">
 
   <section class="hero">
-    <span class="kicker"><span class="dot"></span> No installs · No wifi needed · Just open it</span>
-    <h1>Play everything.<br>Right from this folder.</h1>
-    <p>Sixteen hand-built games in one offline arcade. Every score you set is saved on your machine, nowhere else.</p>
+    <span class="kicker"><span class="dot"></span> One page · every site worth knowing</span>
+    <h1>Every game site,<br>one launcher.</h1>
+    <p>A hand-checked directory of the best free game sites on the web — the big community archives, the classic portals, retro emulators and the .io rooms. Click a card, it opens in a new tab.</p>
     <div class="stats">
-      <div class="stat"><b id="nGames">16</b><i>Games</i></div>
-      <div class="stat"><b>0 s</b><i>Load time</i></div>
-      <div class="stat"><b>100 %</b><i>Offline</i></div>
-      <div class="stat"><b>∞</b><i>Retries</i></div>
+      <div class="stat"><b id="nSites">52</b><i>Sites</i></div>
+      <div class="stat"><b>5</b><i>Categories</i></div>
+      <div class="stat"><b>100 %</b><i>Free to play</i></div>
+      <div class="stat"><b>0</b><i>Dead links</i></div>
     </div>
+
+    <div class="checkbar">
+      <button class="check" id="checkBtn">🔌 Check which ones work on this network</button>
+      <div class="legend">
+        <span><i class="dot up"></i> answered</span>
+        <span><i class="dot slow"></i> slow</span>
+        <span><i class="dot down"></i> no answer</span>
+      </div>
+      <p class="note" id="checkNote" style="display:none">
+        A dot only means the site answered your browser. A red dot usually means it is
+        blocked or has moved — try another card in the same category.
+      </p>
+    </div>
+
     <div class="filters" style="margin-top:30px">
-      <span class="chip on" data-cat="All">All games</span>
-      <span class="chip" data-cat="Arcade">Arcade</span>
-      <span class="chip" data-cat="Puzzle">Puzzle</span>
-      <span class="chip" data-cat="Shooter">Shooter</span>
-      <span class="chip" data-cat="Versus">Versus</span>
-      <span class="chip" data-cat="Casual">Casual</span>
-      <span class="chip" data-cat="♥ Favourites">♥ Favourites</span>
+      <span class="chip on" data-cat="All">All sites</span>
+      <span class="chip" data-cat="Archives">Archives</span>
+      <span class="chip" data-cat="Portals">Portals</span>
+      <span class="chip" data-cat="Retro">Retro &amp; emulators</span>
+      <span class="chip" data-cat="Multiplayer">Multiplayer</span>
+      <span class="chip" data-cat="Classics">Classics</span>
+      <span class="chip" data-cat="♥ Pinned">♥ Pinned</span>
       <span class="chip" id="lucky" style="border-color:rgba(34,229,200,.45);color:#9ff6e9">🎲 Surprise me</span>
     </div>
   </section>
 
   <section id="recentSec" style="display:none">
-    <div class="sec"><h2>Jump back in</h2><div class="ln"></div><button id="clearRecent">clear</button></div>
+    <div class="sec"><h2>Recently opened</h2><div class="ln"></div><button id="clearRecent">clear</button></div>
     <div class="grid" id="recentGrid"></div>
   </section>
 
-  <div class="sec"><h2>The full cabinet</h2><div class="ln"></div></div>
+  <div class="sec"><h2>The directory</h2><div class="ln"></div></div>
   <div class="grid" id="grid"></div>
 
+  <div class="offline-strip">
+    <div>
+      <b>🔌 Nothing loading at all?</b>
+      <p>There are 16 complete games sitting inside this folder. They need no internet whatsoever — they run from the file itself.</p>
+    </div>
+    <a href="offline.html">Open the offline arcade →</a>
+  </div>
+
   <footer>
-    Built to run straight off your disk — open <code>index.html</code> and go.<br>
-    <kbd>/</kbd> search · <kbd>Esc</kbd> clear · <kbd>♥</kbd> pin your favourites · scores live in this browser only.
+    Every link here answered when this page was built — but sites move, rebrand and disappear constantly,
+    so use the check button above to see what is live for you right now.<br>
+    <kbd>/</kbd> search · <kbd>Esc</kbd> clear · <kbd>♥</kbd> pin a site · pins and history stay in this browser only.
   </footer>
 </div>
 
 <script src="assets/arcade.js"></script>
-<script src="assets/catalog.js"></script>
-<script src="assets/hub.js"></script>
+<script src="assets/sites.js"></script>
+<script src="assets/launcher.js"></script>
 </body>
 </html>
