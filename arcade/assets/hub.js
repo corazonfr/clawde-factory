@@ -1,15 +1,18 @@
-/* ========= NEON ARCADE — hub logic ========= */
+/* ========= NEON ARCADE — local game hub ========= */
 (function () {
   'use strict';
   var grid = document.getElementById('grid');
   var recentSec = document.getElementById('recentSec');
   var recentGrid = document.getElementById('recentGrid');
   var search = document.getElementById('search');
-  var chips = document.querySelectorAll('.chip');
+  var chips = document.querySelectorAll('.chip[data-cat]');
   var count = document.getElementById('count');
   var filter = 'All', query = '';
 
   document.getElementById('nGames').textContent = GAMES.length;
+  var origCount = GAMES.filter(function (g) { return g.origin === 'original'; }).length;
+  var oEl = document.getElementById('nOriginals');
+  if (oEl) oEl.textContent = origCount;
 
   function mesh(g) {
     return 'background:' +
@@ -22,19 +25,24 @@
     var best = ARC.store.best(g.id);
     var fav = ARC.store.favs().indexOf(g.id) >= 0;
     var a = document.createElement('a');
-    a.className = 'card';
+    a.className = 'card' + (g.origin === 'original' ? ' orig' : '');
     a.href = g.file;
-    a.style.animationDelay = (i * 34) + 'ms';
+    a.style.animationDelay = Math.min(i * 30, 480) + 'ms';
     a.innerHTML =
       '<div class="thumb"><div class="mesh" style="' + mesh(g) + '"></div>' +
-        '<div class="emo">' + g.emoji + '</div><div class="shine"></div></div>' +
-      '<button class="fav' + (fav ? ' on' : '') + '" title="Favourite">' + (fav ? '♥' : '♡') + '</button>' +
+        '<div class="emo">' + g.emoji + '</div><div class="shine"></div>' +
+        (g.origin === 'original' ? '<div class="badge">ORIGINAL</div>' : '') +
+      '</div>' +
+      '<button class="fav' + (fav ? ' on' : '') + '" title="Pin to the top">' + (fav ? '♥' : '♡') + '</button>' +
       '<div class="play">▶</div>' +
-      '<div class="meta"><h3>' + g.title + '</h3><p>' + g.blurb + '</p>' +
-        '<div class="tags"><span class="tag">' + g.cat + '</span>' +
-        g.tags.map(function (t) { return '<span class="tag">' + t + '</span>'; }).join('') +
-        (best ? '<span class="hs">★ ' + best + '</span>' : '') +
-      '</div></div>';
+      '<div class="meta"><h3>' + g.title + '</h3>' +
+        (g.by ? '<div class="host">by ' + g.by + ' · ' + g.lic + '</div>' : '') +
+        '<p>' + g.blurb + '</p>' +
+        '<div class="tags"><span class="tag lead">' + g.cat + '</span>' +
+          g.tags.map(function (t) { return '<span class="tag">' + t + '</span>'; }).join('') +
+          (best ? '<span class="hs">★ ' + best + '</span>' : '') +
+        '</div>' +
+      '</div>';
 
     a.addEventListener('click', function (e) {
       if (e.target.closest('.fav')) {
@@ -42,7 +50,7 @@
         var now = ARC.store.toggleFav(g.id);
         e.target.classList.toggle('on', now);
         e.target.textContent = now ? '♥' : '♡';
-        if (now) render();
+        render();
         return;
       }
       ARC.store.touch(g.id);
@@ -53,12 +61,19 @@
   function render() {
     var favs = ARC.store.favs();
     var list = GAMES.filter(function (g) {
-      var okCat = filter === 'All' || (filter === '♥ Favourites' ? favs.indexOf(g.id) >= 0 : g.cat === filter);
-      var hay = (g.title + ' ' + g.blurb + ' ' + g.cat + ' ' + g.tags.join(' ')).toLowerCase();
+      var okCat = filter === 'All' ? true
+        : filter === '♥ Pinned' ? favs.indexOf(g.id) >= 0
+        : filter === '★ Originals' ? g.origin === 'original'
+        : g.cat === filter;
+      var hay = (g.title + ' ' + g.blurb + ' ' + g.cat + ' ' + g.tags.join(' ') + ' ' + (g.by || '')).toLowerCase();
       return okCat && hay.indexOf(query) >= 0;
     });
-    /* favourites float to the top */
-    list.sort(function (a, b) { return (favs.indexOf(b.id) >= 0) - (favs.indexOf(a.id) >= 0); });
+    /* pinned first, then the real originals, then the rest */
+    list.sort(function (a, b) {
+      var f = (favs.indexOf(b.id) >= 0) - (favs.indexOf(a.id) >= 0);
+      if (f) return f;
+      return (b.origin === 'original') - (a.origin === 'original');
+    });
 
     grid.innerHTML = '';
     if (!list.length) {
@@ -68,7 +83,6 @@
     }
     count.textContent = list.length + ' / ' + GAMES.length + ' games';
 
-    /* recently played rail */
     var rec = ARC.store.recent()
       .map(function (id) { return GAMES.filter(function (g) { return g.id === id; })[0]; })
       .filter(Boolean).slice(0, 4);
@@ -86,19 +100,17 @@
     });
   });
   search.addEventListener('input', function () { query = search.value.trim().toLowerCase(); render(); });
-
-  document.getElementById('clearRecent').addEventListener('click', function () {
-    try { var all = JSON.parse(localStorage.getItem('neonArcade.v1') || '{}'); all.recent = []; localStorage.setItem('neonArcade.v1', JSON.stringify(all)); } catch (e) {}
-    render();
-  });
-
-  /* "/" focuses search, Esc clears it */
   document.addEventListener('keydown', function (e) {
     if (e.key === '/' && document.activeElement !== search) { e.preventDefault(); search.focus(); }
     if (e.key === 'Escape') { search.value = ''; query = ''; search.blur(); render(); }
   });
-
-  /* surprise me */
+  document.getElementById('clearRecent').addEventListener('click', function () {
+    try {
+      var all = JSON.parse(localStorage.getItem('neonArcade.v1') || '{}');
+      all.recent = []; localStorage.setItem('neonArcade.v1', JSON.stringify(all));
+    } catch (e) {}
+    render();
+  });
   document.getElementById('lucky').addEventListener('click', function () {
     var g = GAMES[Math.floor(Math.random() * GAMES.length)];
     ARC.store.touch(g.id);

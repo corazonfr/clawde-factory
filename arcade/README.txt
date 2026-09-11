@@ -1,87 +1,67 @@
 ==========================================================
   NEON ARCADE
-  52 game sites in one launcher + 16 offline backup games
+  23 games. Every one of them a file in this folder.
 ==========================================================
 
-HOW TO USE
-----------
-1. Unzip this folder anywhere (Desktop, USB stick, wherever).
+HOW TO PLAY
+-----------
+1. Unzip this folder anywhere.
 2. Double-click  index.html
-3. Click any card. It opens that site in a new tab.
+3. Click a game. It plays immediately.
 
-No install, no server, no account. The launcher itself is a plain
-HTML file, so it opens straight off your disk.
-
-
-WHAT'S IN HERE
---------------
-index.html ........ THE LAUNCHER — 52 game sites, sorted and searchable
-offline.html ...... 16 complete games that need no internet at all
-assets/ ........... stylesheet, site directory, shared scripts
-games/ ............ the 16 offline games, one HTML file each
+No install, no server, no account, no internet. Not one game here makes
+a single network request — that was tested, not assumed.
 
 
-THE LAUNCHER
-------------
-Sites are grouped into five categories:
-
-  Archives .......... the big community game collections, several of
-                      them hosted on GitHub Pages (3kh0, Selenite,
-                      Kazwire, UBG98, UBG365)
-  Portals ........... the mainstream free sites — Poki, CrazyGames,
-                      Coolmath, Kongregate, itch.io, Newgrounds,
-                      Armor Games, Scratch and more
-  Retro ............. emulators and preserved classics — Archive.org's
-                      MS-DOS library, Console Living Room, js-dos,
-                      EmulatorJS, Minecraft Classic
-  Multiplayer ....... the .io rooms — Slither, Krunker, Shell Shockers,
-                      Agar, Diep, Skribbl, Gartic Phone
-  Classics .......... single legendary games — 2048, Lichess, Jstris,
-                      neal.fun, Cookie Clicker, A Dark Room, Sandspiel
-
-Features:
-  - type to search, or press "/" from anywhere
-  - filter by category
-  - click the heart on a card to pin it to the top
-  - "Surprise me" opens a random site
-  - recently opened sites get their own row
+WHAT'S INSIDE
+-------------
+index.html ........ the arcade — all 23 games, searchable
+classics/ ......... 7 real open-source games, bundled with their licences
+games/ ............ 16 games written for this pack
+sites.html ........ a bonus directory of 52 online game sites (needs wifi)
+CREDITS.txt ....... who made the bundled games, and what was changed
 
 
-THE "CHECK WHICH ONES WORK" BUTTON
-----------------------------------
-Game sites move, rebrand and vanish constantly, and every network
-blocks a different set of them. So the launcher can test them for you:
+THE 7 ORIGINALS (in classics/)
+------------------------------
+  Hextris ............ Tetris on a spinning hexagon. Genuinely great, and
+                       its official site is offline now — this copy works.
+  2048 ............... the real one by Gabriele Cirulli, not a clone
+  T-Rex Runner ....... Chrome's offline dinosaur, playable on demand
+  Tetris ............. Jake Gordon's flawless canvas version
+  Pseudo-3D Racer .... a full OutRun-style racer at 60fps
+  Pong ............... the 1972 original, done properly
+  A Dark Room ........ starts as one button in an empty room. Give it time.
 
-  green dot  = the site answered your browser
-  amber dot  = it answered, but slowly
-  red dot    = no answer — blocked on this network, or the site moved
-
-The test runs from YOUR machine, not from anywhere else, and only
-learns whether each host replied. Nothing is uploaded or reported.
-If a card goes red, try another one in the same category — that's
-exactly why there are five archives instead of one.
-
-Every link in the directory responded when this folder was built.
-That was a point-in-time check; the button is the live one.
+Each sits in its own folder and can be opened directly if you'd rather
+skip the launcher — for example classics/hextris/index.html.
 
 
-IF NOTHING LOADS AT ALL
------------------------
-Open offline.html instead. Sixteen complete games live inside this
-folder and run with no network whatsoever: snake, tetris, 2048,
-breakout, flappy, minesweeper, pong, space invaders, memory match,
-sky jumper, asteroids, tic tac toe, connect four, reflex grid, an
-endless runner and simon.
+THE 16 IN games/
+----------------
+snake · tetra blocks · 2048 neon · brick blaster · flap dash ·
+minesweeper · pong duel · space invaders · memory match · sky jumper ·
+asteroids · tic tac toe · connect four · reflex grid · dash runner · simon
+
+Also openable on their own, e.g. games/snake.html.
+
+
+CONTROLS
+--------
+Each game shows its own controls. Broadly:
+  arrows / WASD ... move        Space ... jump, fire, drop, start
+  P ............... pause       Enter ... restart
+Touch controls appear automatically on phones and tablets.
 
 
 NOTES
 -----
-- Pins and history are saved in your browser's local storage. They stay
-  on this machine and are never uploaded.
-- Keep the folder together — index.html needs assets/ and games/ next
-  to it. Unzip the whole thing rather than dragging one file out.
-- Sound in the offline games starts after your first click; browsers
-  block audio until you interact with the page.
-- These are third-party sites. They set their own ads, cookies and
-  terms, and whether you are allowed to use them on a given network
-  is between you and whoever runs that network.
+- High scores and pins are saved in your browser's local storage. They
+  stay on this machine and are never uploaded.
+- Keep the folder together. index.html needs assets/, games/ and
+  classics/ beside it — unzip the whole thing, don't drag one file out.
+- Sound starts after your first click; browsers block audio until then.
+- A Dark Room is silent when run from a file. Browsers forbid the kind
+  of audio loading it uses on file:// URLs. The game is unaffected.
+- Chrome, Edge and Firefox save scores from file:// fine. Safari is
+  stricter and may not persist them; the games still play.

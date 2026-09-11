@@ -1,0 +1,67 @@
+==========================================================
+  NEON ARCADE — credits and licences
+==========================================================
+
+Seven of the games in this pack are real open-source projects,
+included here in full with their original licence files. They are in
+classics/ and each keeps its own LICENSE and README.
+
+  classics/hextris     Hextris
+                       Garrett Finucane and contributors
+                       GPL-3.0 · github.com/Hextris/hextris
+
+  classics/2048        2048
+                       Gabriele Cirulli
+                       MIT · github.com/gabrielecirulli/2048
+
+  classics/dino        T-Rex Runner (Chrome's offline dinosaur)
+                       Packaged by wayou
+                       BSD-3-Clause · github.com/wayou/t-rex-runner
+
+  classics/tetris      Tetris
+                       Jake Gordon
+                       MIT · github.com/jakesgordon/javascript-tetris
+
+  classics/racer       Pseudo-3D Racer
+                       Jake Gordon
+                       MIT · github.com/jakesgordon/javascript-racer
+
+  classics/pong        Pong
+                       Jake Gordon
+                       MIT · github.com/jakesgordon/javascript-pong
+
+  classics/adarkroom   A Dark Room
+                       Doublespeak Games
+                       MPL-2.0 · github.com/doublespeakgames/adarkroom
+
+The 16 games in games/ were written for this pack.
+
+
+CHANGES MADE TO THE BUNDLED PROJECTS
+------------------------------------
+Each copy is otherwise unmodified upstream source. The edits below exist
+only so the games run from a local file with no network:
+
+  hextris    Removed the Google Analytics loader, an AdSense block, and a
+             web-font <link>. Also removed a script injection that pulled
+             http://hextris.io/a.js at runtime — that domain no longer
+             serves the project, so it was loading a stranger's code.
+             Nothing in the game depends on any of it.
+
+  dino       Removed a Google Fonts <link>. Deleted the README animation
+             GIFs from assets/ (not used by the game).
+
+  racer      Removed the 8 MB soundtrack to keep the download small, and
+             guarded playMusic() so it no longer throws without it.
+
+  adarkroom  Repointed jQuery from a CDN to the copy already in the repo
+             (lib/jquery.min.js) and removed the analytics tag. Its audio
+             engine uses fetch(), which browsers forbid on file:// URLs,
+             so under file:// it now resolves to silence instead of
+             erroring. Trimmed the translation files to save ~4 MB.
+
+Under GPL-3.0 and MPL-2.0 these modified copies must stay open — the full
+source for each is right here in its folder, which satisfies that.
+
+Everything else in the pack — the launcher, the shared styles, the 16
+games in games/ — you may use however you like.
