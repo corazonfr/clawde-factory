@@ -4,12 +4,31 @@
 ==========================================================
 
   1. 23 games that run by DOUBLE-CLICK        -> open index.html
-  2. A full unblocked-games SITE (15 big      -> run START-Windows.bat
-     games: Slope, Run 3, Vex 3, Cubefield,      or START-Mac-Linux.command
-     Idle Breakout, World's Hardest Game...)
+                                                 (works right now, offline)
 
-Both work with no internet. They just start differently, and the reason
-is worth thirty seconds of your time:
+  2. A full unblocked-games SITE (15 big      -> step one:  GET-GAMES-Windows.bat
+     games: Slope, Run 3, Vex 3, Cubefield,      step two:  START-Windows.bat
+     Idle Breakout, World's Hardest Game...)     (Mac/Linux: the .command files)
+
+
+READ THIS FIRST: THE GAMES ARE FETCHED SEPARATELY
+-------------------------------------------------
+The site's pages are all in this folder, but the 15 games themselves are
+about 210 MB of artwork and audio -- too big to attach in chat, which caps
+at 30 MB. So they download in one step instead.
+
+  Run GET-GAMES-Windows.bat (or GET-GAMES-Mac-Linux.command) ONCE while
+  you have internet. It pulls the 15 games from the same public repos the
+  site already points at, into site/g/. Takes a few minutes.
+
+After that you never need a connection again. Re-running it is safe --
+anything already downloaded is skipped.
+
+The 23 double-click games in part 1 need none of this. They work the
+second you unzip.
+
+Both halves run with no internet once set up. They just start differently,
+and the reason is worth thirty seconds of your time:
 
 
 WHY THE SITE NEEDS A LAUNCHER
