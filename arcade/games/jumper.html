@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sky Jumper — Neon Arcade</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>☁️</text></svg>">
+<link rel="stylesheet" href="../assets/game.css">
+</head>
+<body>
+<div class="bar"><div class="bar-in">
+  <a class="back" href="../index.html">←&nbsp;Arcade</a>
+  <div class="gname">Sky Jumper<small>Arcade · Endless</small></div>
+  <div class="hud">
+    <div class="pill"><i>Height</i><b id="score">0</b></div>
+    <div class="pill"><i>Best</i><b id="best">0</b></div>
+  </div>
+</div></div>
+
+<div class="stage">
+  <div class="panel">
+    <canvas id="cv"></canvas>
+    <div class="over" id="over"></div>
+  </div>
+  <div class="btns"><button class="btn primary" id="go">Restart</button></div>
+  <div class="dpad"><button data-k="l">◀</button><button data-k="r">▶</button></div>
+  <p class="hint"><kbd>←</kbd><kbd>→</kbd> to steer (you wrap round the edges) · green pads bounce higher, brown ones crumble, springs launch you.</p>
+</div>
+
+<script src="../assets/arcade.js"></script>
+<script>
+(function () {
+  'use strict';
+  var W = 420, H = 600, G = 0.38;
+  var cv = document.getElementById('cv');
+  var ctx = ARC.fit(cv, W, H); ARC.responsive(cv, W);
+  var over = ARC.overlay(document.getElementById('over'));
+  var $ = function (i) { return document.getElementById(i); };
+
+  var p, plats, cam, score, alive, keys = {}, parts, clouds, t = 0;
+  $('best').textContent = ARC.store.best('jumper');
+
+  function plat(y, forceNormal) {
+    var r = Math.random();
+    var type = forceNormal ? 'n' : (r < .62 ? 'n' : r < .78 ? 'm' : r < .90 ? 'b' : 's');
+    return { x: 20 + Math.random() * (W - 110), y: y, w: 76, h: 14, type: type, vx: type === 'm' ? (Math.random() < .5 ? -1.4 : 1.4) : 0, used: false };
+  }
+  function reset() {
+    p = { x: W / 2 - 16, y: H - 140, w: 32, h: 34, vx: 0, vy: -9, face: 1 };
+    plats = [{ x: W / 2 - 38, y: H - 90, w: 76, h: 14, type: 'n', vx: 0 }];
+    for (var y = H - 160; y > -220; y -= 62 + Math.random() * 34) plats.push(plat(y));
+    clouds = []; for (var i = 0; i < 6; i++) clouds.push({ x: Math.random() * W, y: Math.random() * H, s: .6 + Math.random() });
+    cam = 0; score = 0; alive = true; parts = [];
+    $('score').textContent = 0; over.hide();
+  }
+
+  function bounce(power, col) {
+    p.vy = power; ARC.sfx.pick(power < -13 ? 1200 : 720);
+    for (var i = 0; i < 8; i++) parts.push({ x: p.x + 16, y: p.y + p.h, vx: (Math.random() - .5) * 4, vy: Math.random() * 2, life: 1, c: col });
+  }
+
+  function step() {
+    if (!alive) return;
+    t++;
+    if (keys.l) p.vx -= 0.85;
+    if (keys.r) p.vx += 0.85;
+    p.vx *= 0.9;
+    p.vx = Math.max(-9, Math.min(9, p.vx));
+    if (p.vx > .3) p.face = 1; else if (p.vx < -.3) p.face = -1;
+
+    p.x += p.vx;
+    if (p.x + p.w < 0) p.x = W; if (p.x > W) p.x = -p.w;
+    p.vy += G; p.y += p.vy;
+
+    /* scroll */
+    if (p.y < cam + 230) {
+      var d = (cam + 230) - p.y;
+      cam -= d; p.y += d;
+      plats.forEach(function (q) { q.y += d; });
+      parts.forEach(function (q) { q.y += d; });
+      clouds.forEach(function (c) { c.y += d * .28; if (c.y > H) { c.y = -30; c.x = Math.random() * W; } });
+      score += Math.round(d);
+      $('score').textContent = score;
+    }
+
+    plats.forEach(function (q) {
+      if (q.type === 'm') {
+        q.x += q.vx;
+        if (q.x < 8 || q.x + q.w > W - 8) q.vx *= -1;
+      }
+      if (p.vy > 0 && !q.gone &&
+          p.x + p.w > q.x + 4 && p.x < q.x + q.w - 4 &&
+          p.y + p.h > q.y && p.y + p.h < q.y + q.h + p.vy + 2) {
+        if (q.type === 'b') { q.gone = true; bounce(-4, '#a16207'); }
+        else if (q.type === 's') bounce(-17, '#22e5c8');
+        else bounce(-11.4, '#3ddc84');
+      }
+    });
+    plats = plats.filter(function (q) { return !q.gone || q.y < H; });
+
+    /* recycle platforms */
+    plats = plats.filter(function (q) { return q.y < H + 40; });
+    var top = Math.min.apply(null, plats.map(function (q) { return q.y; }));
+    while (top > -160) { top -= 52 + Math.random() * 40; plats.push(plat(top)); }
+
+    parts.forEach(function (q) { q.x += q.vx; q.y += q.vy; q.vy += .2; q.life -= .04; });
+    parts = parts.filter(function (q) { return q.life > 0; });
+
+    if (p.y > H + 60) die();
+  }
+
+  function die() {
+    alive = false; ARC.sfx.bad();
+    var rec = ARC.store.submit('jumper', score);
+    $('best').textContent = ARC.store.best('jumper');
+    over.show(rec ? 'New record!' : 'Down you go',
+      '<div class="big">' + score + '</div><p>' + (rec ? 'Highest climb yet.' : 'Best: ' + ARC.store.best('jumper')) + '</p>');
+  }
+
+  var PCOL = { n: ['#3ddc84', '#15803d'], m: ['#5b8cff', '#1e40af'], b: ['#c084fc', '#7e22ce'], s: ['#22e5c8', '#0e7490'] };
+
+  function draw() {
+    var sky = ctx.createLinearGradient(0, 0, 0, H);
+    sky.addColorStop(0, '#0b1437'); sky.addColorStop(1, '#2a1247');
+    ctx.fillStyle = sky; ctx.fillRect(0, 0, W, H);
+
+    ctx.fillStyle = 'rgba(255,255,255,.07)';
+    clouds.forEach(function (c) {
+      ctx.beginPath();
+      ctx.ellipse(c.x, c.y, 40 * c.s, 15 * c.s, 0, 0, 7); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(c.x + 22 * c.s, c.y - 6 * c.s, 26 * c.s, 12 * c.s, 0, 0, 7); ctx.fill();
+    });
+
+    plats.forEach(function (q) {
+      var c = PCOL[q.type];
+      ctx.save(); ctx.shadowColor = c[0]; ctx.shadowBlur = 12;
+      var g = ctx.createLinearGradient(q.x, q.y, q.x, q.y + q.h);
+      g.addColorStop(0, c[0]); g.addColorStop(1, c[1]);
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      if (ctx.roundRect) ctx.roundRect(q.x, q.y, q.w, q.h, 6); else ctx.rect(q.x, q.y, q.w, q.h);
+      ctx.fill(); ctx.restore();
+      if (q.type === 's') {
+        ctx.strokeStyle = '#b6fff2'; ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        for (var i = 0; i < 4; i++) { ctx.moveTo(q.x + q.w / 2 - 9 + i * 6, q.y - 2); ctx.lineTo(q.x + q.w / 2 - 6 + i * 6, q.y - 9); }
+        ctx.stroke();
+      }
+    });
+
+    parts.forEach(function (q) { ctx.globalAlpha = Math.max(0, q.life); ctx.fillStyle = q.c; ctx.fillRect(q.x, q.y, 4, 4); });
+    ctx.globalAlpha = 1;
+
+    /* the jumper */
+    ctx.save();
+    ctx.translate(p.x + p.w / 2, p.y + p.h / 2);
+    ctx.scale(p.face, 1);
+    ctx.shadowColor = '#38bdf8'; ctx.shadowBlur = 18;
+    ctx.fillStyle = '#38bdf8';
+    ctx.beginPath(); ctx.ellipse(0, 0, 16, 17, 0, 0, 7); ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = '#0b1437';
+    ctx.beginPath(); ctx.arc(5, -4, 4, 0, 7); ctx.fill();
+    ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(6.4, -5, 1.6, 0, 7); ctx.fill();
+    ctx.fillStyle = '#1d4ed8';
+    var sq = p.vy > 0 ? 1 : -1;
+    ctx.fillRect(-13, 12, 9, 6 + sq * 2); ctx.fillRect(4, 12, 9, 6 - sq * 2);
+    ctx.restore();
+
+    ctx.fillStyle = 'rgba(255,255,255,.16)'; ctx.font = '900 70px Segoe UI,sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText(score, W / 2, 74);
+  }
+
+  function loop() { step(); draw(); requestAnimationFrame(loop); }
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'ArrowLeft' || e.key === 'a') keys.l = 1;
+    if (e.key === 'ArrowRight' || e.key === 'd') keys.r = 1;
+    if (e.key === 'Enter' && !alive) reset();
+  });
+  document.addEventListener('keyup', function (e) {
+    if (e.key === 'ArrowLeft' || e.key === 'a') keys.l = 0;
+    if (e.key === 'ArrowRight' || e.key === 'd') keys.r = 0;
+  });
+  document.querySelectorAll('.dpad button').forEach(function (b) {
+    var k = b.dataset.k;
+    function on(e) { e.preventDefault(); keys[k] = 1; } function off() { keys[k] = 0; }
+    b.addEventListener('touchstart', on, { passive: false }); b.addEventListener('touchend', off);
+    b.addEventListener('mousedown', on); b.addEventListener('mouseup', off); b.addEventListener('mouseleave', off);
+  });
+  /* tilt-free touch steering: hold left/right half of the canvas */
+  cv.addEventListener('touchstart', function (e) {
+    var r = cv.getBoundingClientRect();
+    keys[(e.touches[0].clientX - r.left) < r.width / 2 ? 'l' : 'r'] = 1;
+  }, { passive: true });
+  cv.addEventListener('touchend', function () { keys.l = keys.r = 0; });
+
+  $('go').addEventListener('click', reset);
+  reset(); loop();
+})();
+</script>
+</body>
+</html>

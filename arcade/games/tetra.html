@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tetra Blocks — Neon Arcade</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧱</text></svg>">
+<link rel="stylesheet" href="../assets/game.css">
+</head>
+<body>
+<div class="bar"><div class="bar-in">
+  <a class="back" href="../index.html">←&nbsp;Arcade</a>
+  <div class="gname">Tetra Blocks<small>Puzzle · Levels</small></div>
+  <div class="hud">
+    <div class="pill"><i>Score</i><b id="score">0</b></div>
+    <div class="pill"><i>Lines</i><b id="lines">0</b></div>
+    <div class="pill"><i>Level</i><b id="lvl">1</b></div>
+    <div class="pill"><i>Best</i><b id="best">0</b></div>
+  </div>
+</div></div>
+
+<div class="stage">
+  <div class="panel" style="display:flex;gap:14px;align-items:flex-start">
+    <canvas id="cv"></canvas>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div>
+        <div style="font-size:10px;letter-spacing:1.6px;text-transform:uppercase;color:var(--dim);margin-bottom:6px">Next</div>
+        <canvas id="nx"></canvas>
+      </div>
+      <div>
+        <div style="font-size:10px;letter-spacing:1.6px;text-transform:uppercase;color:var(--dim);margin-bottom:6px">Hold</div>
+        <canvas id="hd"></canvas>
+      </div>
+    </div>
+    <div class="over" id="over"></div>
+  </div>
+  <div class="btns">
+    <button class="btn primary" id="go">New game</button>
+    <button class="btn" id="pause">Pause</button>
+  </div>
+  <div class="dpad">
+    <button data-k="left">◀</button>
+    <button data-k="rot">⟳</button>
+    <button data-k="down">▼</button>
+    <button data-k="drop">⤓</button>
+    <button data-k="right">▶</button>
+  </div>
+  <p class="hint"><kbd>←</kbd><kbd>→</kbd> move · <kbd>↑</kbd> rotate · <kbd>↓</kbd> soft drop · <kbd>Space</kbd> hard drop · <kbd>C</kbd> hold · <kbd>P</kbd> pause</p>
+</div>
+
+<script src="../assets/arcade.js"></script>
+<script>
+(function () {
+  'use strict';
+  var COLS = 10, ROWS = 20, CELL = 26, W = COLS * CELL, H = ROWS * CELL;
+  var ctx = ARC.fit(document.getElementById('cv'), W, H);
+  var nxc = ARC.fit(document.getElementById('nx'), 4 * 20, 4 * 20);
+  var hdc = ARC.fit(document.getElementById('hd'), 4 * 20, 4 * 20);
+  var over = ARC.overlay(document.getElementById('over'));
+  var $ = function (i) { return document.getElementById(i); };
+
+  var SHAPES = {
+    I: { c: '#22e5c8', m: [[0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0]] },
+    J: { c: '#5b8cff', m: [[1,0,0],[1,1,1],[0,0,0]] },
+    L: { c: '#ffb339', m: [[0,0,1],[1,1,1],[0,0,0]] },
+    O: { c: '#ffe14d', m: [[1,1],[1,1]] },
+    S: { c: '#3ddc84', m: [[0,1,1],[1,1,0],[0,0,0]] },
+    T: { c: '#c77dff', m: [[0,1,0],[1,1,1],[0,0,0]] },
+    Z: { c: '#ff5b7f', m: [[1,1,0],[0,1,1],[0,0,0]] }
+  };
+  var KEYS = Object.keys(SHAPES);
+
+  var board, piece, next, hold, canHold, bag, score, lines, level, alive, paused, acc, last, flash;
+  $('best').textContent = ARC.store.best('tetra');
+
+  function newBag() { var b = KEYS.slice(); for (var i = b.length - 1; i > 0; i--) { var j = (Math.random() * (i + 1)) | 0; var t = b[i]; b[i] = b[j]; b[j] = t; } return b; }
+  function take() { if (!bag.length) bag = newBag(); var k = bag.pop(); return { k: k, m: SHAPES[k].m.map(function (r) { return r.slice(); }), c: SHAPES[k].c, x: ((COLS / 2) | 0) - 2, y: -1 }; }
+
+  function reset() {
+    board = []; for (var y = 0; y < ROWS; y++) board.push(new Array(COLS).fill(null));
+    bag = newBag(); piece = take(); next = take(); hold = null; canHold = true;
+    score = 0; lines = 0; level = 1; alive = true; paused = false; acc = 0; flash = [];
+    last = performance.now(); over.hide(); sync(); drawSide();
+  }
+  function sync() { $('score').textContent = score; $('lines').textContent = lines; $('lvl').textContent = level; }
+  function speed() { return Math.max(75, 800 - (level - 1) * 68); }
+
+  function collide(p, ox, oy, m) {
+    m = m || p.m;
+    for (var y = 0; y < m.length; y++) for (var x = 0; x < m[y].length; x++) {
+      if (!m[y][x]) continue;
+      var nx = p.x + x + ox, ny = p.y + y + oy;
+      if (nx < 0 || nx >= COLS || ny >= ROWS) return true;
+      if (ny >= 0 && board[ny][nx]) return true;
+    }
+    return false;
+  }
+  function rotate(m) {
+    var n = m.length, r = [];
+    for (var y = 0; y < n; y++) { r.push([]); for (var x = 0; x < n; x++) r[y].push(m[n - 1 - x][y]); }
+    return r;
+  }
+  function tryRotate() {
+    var m = rotate(piece.m);
+    var kicks = [0, -1, 1, -2, 2];
+    for (var i = 0; i < kicks.length; i++) {
+      if (!collide(piece, kicks[i], 0, m)) { piece.m = m; piece.x += kicks[i]; ARC.sfx.pick(700); return; }
+    }
+  }
+  function lock() {
+    for (var y = 0; y < piece.m.length; y++) for (var x = 0; x < piece.m[y].length; x++) {
+      if (!piece.m[y][x]) continue;
+      var ny = piece.y + y;
+      if (ny < 0) { return die(); }
+      board[ny][piece.x + x] = piece.c;
+    }
+    /* clear lines */
+    var cleared = [];
+    for (var r = ROWS - 1; r >= 0; r--) {
+      if (board[r].every(function (c) { return c; })) { cleared.push(r); }
+    }
+    if (cleared.length) {
+      flash = cleared.slice();
+      /* rebuild instead of splicing row-by-row: indices shift after every removal */
+      var kept = board.filter(function (row) { return !row.every(function (c) { return c; }); });
+      while (kept.length < ROWS) kept.unshift(new Array(COLS).fill(null));
+      board = kept;
+      lines += cleared.length;
+      score += [0, 100, 300, 500, 800][cleared.length] * level;
+      level = 1 + Math.floor(lines / 10);
+      cleared.length === 4 ? ARC.sfx.win() : ARC.sfx.good();
+      setTimeout(function () { flash = []; }, 90);
+    } else ARC.sfx.hit();
+    sync();
+    piece = next; next = take(); canHold = true; drawSide();
+    if (collide(piece, 0, 0)) die();
+  }
+  function die() {
+    alive = false; ARC.sfx.bad();
+    var rec = ARC.store.submit('tetra', score);
+    $('best').textContent = ARC.store.best('tetra');
+    over.show(rec ? 'New record!' : 'Stack overflow',
+      '<div class="big">' + score + '</div><p>' + lines + ' lines · level ' + level + (rec ? ' · personal best!' : '') + '</p>');
+  }
+  function drop() { if (!collide(piece, 0, 1)) { piece.y++; return true; } lock(); return false; }
+  function hardDrop() { var n = 0; while (!collide(piece, 0, 1)) { piece.y++; n++; } score += n * 2; sync(); ARC.slide(500, 160, .12); lock(); }
+  function doHold() {
+    if (!canHold) return;
+    var cur = piece.k;
+    if (hold) { piece = { k: hold, m: SHAPES[hold].m.map(function (r) { return r.slice(); }), c: SHAPES[hold].c, x: 3, y: -1 }; }
+    else { piece = next; next = take(); }
+    hold = cur; canHold = false; drawSide(); ARC.sfx.pick(440);
+  }
+
+  function block(c, x, y, s, col, ghost) {
+    c.fillStyle = ghost ? 'rgba(255,255,255,.1)' : col;
+    c.fillRect(x + 1, y + 1, s - 2, s - 2);
+    if (ghost) { c.strokeStyle = 'rgba(255,255,255,.3)'; c.lineWidth = 1; c.strokeRect(x + 1.5, y + 1.5, s - 3, s - 3); return; }
+    c.fillStyle = 'rgba(255,255,255,.28)'; c.fillRect(x + 1, y + 1, s - 2, 3);
+    c.fillStyle = 'rgba(0,0,0,.3)'; c.fillRect(x + 1, y + s - 5, s - 2, 4);
+  }
+
+  function drawMini(c, p) {
+    c.clearRect(0, 0, 80, 80);
+    c.fillStyle = 'rgba(255,255,255,.03)'; c.fillRect(0, 0, 80, 80);
+    if (!p) return;
+    var m = SHAPES[p].m, n = m.length, s = 18;
+    var ox = (80 - n * s) / 2, oy = (80 - n * s) / 2;
+    for (var y = 0; y < n; y++) for (var x = 0; x < n; x++) if (m[y][x]) block(c, ox + x * s, oy + y * s, s, SHAPES[p].c);
+  }
+  function drawSide() { drawMini(nxc, next && next.k); drawMini(hdc, hold); }
+
+  function draw() {
+    ctx.fillStyle = '#05050b'; ctx.fillRect(0, 0, W, H);
+    ctx.strokeStyle = 'rgba(255,255,255,.05)';
+    for (var i = 1; i < COLS; i++) { ctx.beginPath(); ctx.moveTo(i * CELL + .5, 0); ctx.lineTo(i * CELL + .5, H); ctx.stroke(); }
+    for (var j = 1; j < ROWS; j++) { ctx.beginPath(); ctx.moveTo(0, j * CELL + .5); ctx.lineTo(W, j * CELL + .5); ctx.stroke(); }
+
+    for (var y = 0; y < ROWS; y++) for (var x = 0; x < COLS; x++) {
+      if (board[y][x]) block(ctx, x * CELL, y * CELL, CELL, board[y][x]);
+    }
+    if (flash.length) { ctx.fillStyle = 'rgba(255,255,255,.8)'; flash.forEach(function (r) { ctx.fillRect(0, r * CELL, W, CELL); }); }
+
+    if (alive) {
+      /* ghost */
+      var gy = 0; while (!collide(piece, 0, gy + 1)) gy++;
+      for (var a = 0; a < piece.m.length; a++) for (var b = 0; b < piece.m[a].length; b++) {
+        if (!piece.m[a][b]) continue;
+        if (piece.y + a + gy >= 0) block(ctx, (piece.x + b) * CELL, (piece.y + a + gy) * CELL, CELL, piece.c, true);
+      }
+      ctx.save(); ctx.shadowColor = piece.c; ctx.shadowBlur = 14;
+      for (var p = 0; p < piece.m.length; p++) for (var q = 0; q < piece.m[p].length; q++) {
+        if (!piece.m[p][q]) continue;
+        if (piece.y + p >= 0) block(ctx, (piece.x + q) * CELL, (piece.y + p) * CELL, CELL, piece.c);
+      }
+      ctx.restore();
+    }
+    if (paused && alive) {
+      ctx.fillStyle = 'rgba(5,5,11,.75)'; ctx.fillRect(0, 0, W, H);
+      ctx.fillStyle = '#eef0ff'; ctx.font = '700 22px Segoe UI,sans-serif'; ctx.textAlign = 'center';
+      ctx.fillText('PAUSED', W / 2, H / 2);
+    }
+  }
+
+  function loop(now) {
+    var dt = now - last; last = now;
+    if (alive && !paused) { acc += dt; if (acc > speed()) { acc = 0; drop(); } }
+    draw(); requestAnimationFrame(loop);
+  }
+
+  function act(k) {
+    if (!alive || paused) return;
+    if (k === 'left' && !collide(piece, -1, 0)) piece.x--;
+    else if (k === 'right' && !collide(piece, 1, 0)) piece.x++;
+    else if (k === 'down') { if (drop()) { score++; sync(); } acc = 0; }
+    else if (k === 'rot') tryRotate();
+    else if (k === 'drop') hardDrop();
+    else if (k === 'hold') doHold();
+  }
+  document.addEventListener('keydown', function (e) {
+    var m = { ArrowLeft: 'left', ArrowRight: 'right', ArrowDown: 'down', ArrowUp: 'rot', ' ': 'drop', c: 'hold', C: 'hold' }[e.key];
+    if (m) { e.preventDefault(); act(m); }
+    if (e.key === 'p' || e.key === 'P') paused = !paused;
+    if (e.key === 'Enter' && !alive) reset();
+  });
+  document.querySelectorAll('.dpad button').forEach(function (b) { b.addEventListener('click', function () { act(b.dataset.k); }); });
+  $('go').addEventListener('click', reset);
+  $('pause').addEventListener('click', function () { if (alive) paused = !paused; });
+
+  reset(); requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>

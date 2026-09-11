@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Memory Match — Neon Arcade</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧠</text></svg>">
+<link rel="stylesheet" href="../assets/game.css">
+<style>
+  .mgrid{display:grid;gap:10px}
+  .mc{width:82px;height:82px;perspective:700px;cursor:pointer}
+  .inner{position:relative;width:100%;height:100%;transition:transform .42s cubic-bezier(.3,1.4,.5,1);transform-style:preserve-3d}
+  .mc.flip .inner{transform:rotateY(180deg)}
+  .face{position:absolute;inset:0;border-radius:14px;display:grid;place-items:center;backface-visibility:hidden;font-size:36px}
+  .front{background:linear-gradient(150deg,#7c5cff,#ff3ea5);box-shadow:inset 0 0 0 1px rgba(255,255,255,.18)}
+  .front::after{content:"?";font-size:30px;font-weight:900;color:rgba(255,255,255,.55)}
+  .back{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);transform:rotateY(180deg)}
+  .mc.done .back{background:rgba(34,229,200,.18);border-color:rgba(34,229,200,.5);animation:pop2 .4s}
+  @keyframes pop2{50%{transform:rotateY(180deg) scale(1.12)}}
+  @media(max-width:620px){.mc{width:60px;height:60px}.face{font-size:26px}}
+</style>
+</head>
+<body>
+<div class="bar"><div class="bar-in">
+  <a class="back" href="../index.html">←&nbsp;Arcade</a>
+  <div class="gname">Memory Match<small>Puzzle · Chill</small></div>
+  <div class="hud">
+    <div class="pill"><i>Moves</i><b id="moves">0</b></div>
+    <div class="pill"><i>Pairs</i><b id="pairs">0</b></div>
+    <div class="pill"><i>Time</i><b id="time">0</b></div>
+    <div class="pill"><i>Best</i><b id="best">—</b></div>
+  </div>
+</div></div>
+
+<div class="stage">
+  <div class="panel">
+    <div class="mgrid" id="grid"></div>
+    <div class="over" id="over"></div>
+  </div>
+  <div class="btns">
+    <button class="btn primary" id="go">Shuffle &amp; restart</button>
+    <button class="btn" data-sz="4">4×3 easy</button>
+    <button class="btn" data-sz="6">6×4 classic</button>
+    <button class="btn" data-sz="8">8×5 chaos</button>
+  </div>
+  <p class="hint">Flip two cards. Match them and they lock in. Fewest moves wins — best score per board size is saved.</p>
+</div>
+
+<script src="../assets/arcade.js"></script>
+<script>
+(function () {
+  'use strict';
+  var POOL = ['🍕','🚀','🐙','🎧','🌵','⚡','🍔','👾','🎲','🐸','💎','🔥','🍩','🦊','🌈','🛸','🎸','🧊','🍄','🪐'];
+  var grid = document.getElementById('grid');
+  var over = ARC.overlay(document.getElementById('over'));
+  var $ = function (i) { return document.getElementById(i); };
+  var cards, first, lock, moves, found, cols = 6, rows = 4, secs = 0, timer = null, started;
+
+  function key() { return 'mem_' + cols + 'x' + rows; }
+  function showBest() { var b = ARC.store.best(key()); $('best').textContent = b ? b + ' mv' : '—'; }
+
+  function reset() {
+    rows = cols === 4 ? 3 : cols === 6 ? 4 : 5;
+    var need = (cols * rows) / 2;
+    var pool = POOL.slice(0, need), deck = pool.concat(pool);
+    for (var i = deck.length - 1; i > 0; i--) { var j = (Math.random() * (i + 1)) | 0; var t = deck[i]; deck[i] = deck[j]; deck[j] = t; }
+
+    moves = 0; found = 0; first = null; lock = false; secs = 0; started = false;
+    clearInterval(timer); timer = null;
+    $('moves').textContent = 0; $('pairs').textContent = '0/' + need; $('time').textContent = 0;
+    showBest(); over.hide();
+
+    grid.style.gridTemplateColumns = 'repeat(' + cols + ',auto)';
+    grid.innerHTML = '';
+    cards = deck.map(function (sym, idx) {
+      var el = document.createElement('div');
+      el.className = 'mc';
+      el.innerHTML = '<div class="inner"><div class="face front"></div><div class="face back">' + sym + '</div></div>';
+      el.style.animation = 'pop2 .3s ' + (idx * 18) + 'ms backwards';
+      grid.appendChild(el);
+      var c = { sym: sym, el: el, open: false, done: false };
+      el.addEventListener('click', function () { flip(c); });
+      return c;
+    });
+  }
+
+  function flip(c) {
+    if (lock || c.open || c.done) return;
+    if (!started) { started = true; timer = setInterval(function () { secs++; $('time').textContent = secs; }, 1000); }
+    c.open = true; c.el.classList.add('flip'); ARC.sfx.pick(620);
+
+    if (!first) { first = c; return; }
+    moves++; $('moves').textContent = moves;
+
+    if (first.sym === c.sym) {
+      first.done = c.done = true;
+      first.el.classList.add('done'); c.el.classList.add('done');
+      first = null; found++;
+      $('pairs').textContent = found + '/' + (cards.length / 2);
+      ARC.sfx.good();
+      if (found === cards.length / 2) win();
+    } else {
+      lock = true;
+      var a = first, b = c; first = null;
+      ARC.sfx.hit();
+      setTimeout(function () {
+        a.open = b.open = false;
+        a.el.classList.remove('flip'); b.el.classList.remove('flip');
+        lock = false;
+      }, 620);
+    }
+  }
+
+  function win() {
+    clearInterval(timer); ARC.sfx.win();
+    var k = key(), prev = ARC.store.best(k), rec = !prev || moves < prev;
+    if (rec) { try { var all = JSON.parse(localStorage.getItem('neonArcade.v1') || '{}'); all.best = all.best || {}; all.best[k] = moves; localStorage.setItem('neonArcade.v1', JSON.stringify(all)); } catch (e) {} }
+    showBest();
+    over.show(rec ? 'New record!' : 'All matched',
+      '<div class="big">' + moves + '</div><p>moves in ' + secs + ' seconds' + (rec ? ' · your best on this board' : '') + '</p>');
+  }
+
+  document.querySelectorAll('[data-sz]').forEach(function (b) {
+    b.addEventListener('click', function () { cols = +b.dataset.sz; reset(); });
+  });
+  $('go').addEventListener('click', reset);
+  reset();
+})();
+</script>
+</body>
+</html>

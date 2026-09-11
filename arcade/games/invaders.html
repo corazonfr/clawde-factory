@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Space Invaders — Neon Arcade</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>👾</text></svg>">
+<link rel="stylesheet" href="../assets/game.css">
+</head>
+<body>
+<div class="bar"><div class="bar-in">
+  <a class="back" href="../index.html">←&nbsp;Arcade</a>
+  <div class="gname">Space Invaders<small>Shooter · Waves</small></div>
+  <div class="hud">
+    <div class="pill"><i>Score</i><b id="score">0</b></div>
+    <div class="pill"><i>Wave</i><b id="wave">1</b></div>
+    <div class="pill"><i>Lives</i><b id="lives">3</b></div>
+    <div class="pill"><i>Best</i><b id="best">0</b></div>
+  </div>
+</div></div>
+
+<div class="stage">
+  <div class="panel">
+    <canvas id="cv"></canvas>
+    <div class="over" id="over"></div>
+  </div>
+  <div class="btns">
+    <button class="btn primary" id="go">New game</button>
+    <button class="btn" id="pause">Pause</button>
+  </div>
+  <div class="dpad">
+    <button data-k="l">◀</button><button data-k="f">🔫</button><button data-k="r">▶</button>
+  </div>
+  <p class="hint"><kbd>←</kbd><kbd>→</kbd> move · <kbd>Space</kbd> fire · bunkers crumble, the swarm speeds up as it thins, and the red saucer is worth a lot.</p>
+</div>
+
+<script src="../assets/arcade.js"></script>
+<script>
+(function () {
+  'use strict';
+  var W = 640, H = 520;
+  var cv = document.getElementById('cv');
+  var ctx = ARC.fit(cv, W, H); ARC.responsive(cv, W);
+  var over = ARC.overlay(document.getElementById('over'));
+  var $ = function (i) { return document.getElementById(i); };
+
+  var SPR = [
+    ['0011111100','0111111110','1101111011','1111111111','0011001100','0110110110','1100000011','0011001100'],
+    ['0001111000','0011111100','0111111110','1110110111','1111111111','0010110100','0101001010','1010000101'],
+    ['0000110000','0001111000','0011111100','0110110110','1111111111','0011001100','0100110010','1000000001']
+  ];
+  var ship, aliens, bullets, bombs, bunkers, parts, saucer, score, lives, wave, alive, paused, dir, moveT, keys = {}, fireCD = 0, stars;
+  $('best').textContent = ARC.store.best('invaders');
+
+  function makeWave(n) {
+    aliens = [];
+    var rows = Math.min(5, 3 + Math.floor(n / 2)), cols = 9;
+    for (var r = 0; r < rows; r++) for (var c = 0; c < cols; c++) {
+      aliens.push({ x: 70 + c * 56, y: 70 + r * 44, w: 32, h: 24, t: r % 3, alive: true, f: 0 });
+    }
+    dir = 1; moveT = 0;
+  }
+  function makeBunkers() {
+    bunkers = [];
+    for (var b = 0; b < 4; b++) {
+      var bx = 78 + b * 150;
+      for (var y = 0; y < 4; y++) for (var x = 0; x < 9; x++) {
+        if (y > 2 && x > 2 && x < 6) continue;
+        bunkers.push({ x: bx + x * 9, y: 396 + y * 9, s: 9, hp: 3 });
+      }
+    }
+  }
+  function reset() {
+    ship = { x: W / 2 - 20, y: H - 52, w: 40, h: 20, cool: 0 };
+    bullets = []; bombs = []; parts = []; saucer = null;
+    score = 0; lives = 3; wave = 1; alive = true; paused = false;
+    stars = []; for (var i = 0; i < 60; i++) stars.push({ x: Math.random() * W, y: Math.random() * H, s: Math.random() * 1.6 + .3 });
+    makeWave(1); makeBunkers(); sync(); over.hide();
+  }
+  function sync() { $('score').textContent = score; $('wave').textContent = wave; $('lives').textContent = lives; }
+
+  function burst(x, y, c, n) {
+    for (var i = 0; i < (n || 14); i++)
+      parts.push({ x: x, y: y, vx: (Math.random() - .5) * 6, vy: (Math.random() - .5) * 6, life: 1, c: c });
+  }
+  function fire() {
+    if (!alive || paused || fireCD > 0) return;
+    bullets.push({ x: ship.x + ship.w / 2 - 2, y: ship.y - 6, w: 4, h: 13 });
+    fireCD = 16; ARC.sfx.pick(980);
+  }
+
+  function step() {
+    if (!alive || paused) return;
+    if (fireCD > 0) fireCD--;
+    if (keys.l) ship.x -= 6;
+    if (keys.r) ship.x += 6;
+    if (keys.f) fire();
+    ship.x = Math.max(8, Math.min(W - ship.w - 8, ship.x));
+
+    var live = aliens.filter(function (a) { return a.alive; });
+    /* swarm march */
+    moveT++;
+    var period = Math.max(6, Math.floor(34 - wave * 2 - (aliens.length - live.length) * 0.55));
+    if (moveT >= period) {
+      moveT = 0;
+      var edge = false;
+      live.forEach(function (a) {
+        a.x += dir * 12; a.f ^= 1;
+        if (a.x < 14 || a.x + a.w > W - 14) edge = true;
+      });
+      if (edge) { dir *= -1; live.forEach(function (a) { a.y += 22; a.x += dir * 12; }); }
+      if (live.length) ARC.beep(90 + live.length, 0.045, 'square', 0.05);
+      live.forEach(function (a) { if (a.y + a.h > ship.y - 6) hitShip(true); });
+    }
+    /* alien fire */
+    if (live.length && Math.random() < 0.016 + wave * 0.004) {
+      var shooter = live[(Math.random() * live.length) | 0];
+      bombs.push({ x: shooter.x + shooter.w / 2 - 2, y: shooter.y + shooter.h, w: 4, h: 12 });
+    }
+    /* saucer */
+    if (!saucer && Math.random() < 0.0022) saucer = { x: -40, y: 42, w: 44, h: 18, v: 2.2 + Math.random() * 1.4 };
+    if (saucer) { saucer.x += saucer.v; if (saucer.x > W + 50) saucer = null; }
+
+    bullets.forEach(function (b) { b.y -= 9; });
+    bombs.forEach(function (b) { b.y += 4 + wave * .25; });
+
+    function hitsBunker(o) {
+      for (var i = 0; i < bunkers.length; i++) {
+        var k = bunkers[i];
+        if (o.x < k.x + k.s && o.x + o.w > k.x && o.y < k.y + k.s && o.y + o.h > k.y) {
+          k.hp--; burst(k.x + 4, k.y + 4, '#3ddc84', 5);
+          if (k.hp <= 0) bunkers.splice(i, 1);
+          return true;
+        }
+      }
+      return false;
+    }
+
+    bullets = bullets.filter(function (b) {
+      if (b.y < -14) return false;
+      if (hitsBunker(b)) return false;
+      if (saucer && b.x < saucer.x + saucer.w && b.x + b.w > saucer.x && b.y < saucer.y + saucer.h && b.y + b.h > saucer.y) {
+        score += 150; sync(); burst(saucer.x + 20, saucer.y + 8, '#ff3ea5', 24); ARC.sfx.win(); saucer = null; return false;
+      }
+      for (var i = 0; i < aliens.length; i++) {
+        var a = aliens[i];
+        if (!a.alive) continue;
+        if (b.x < a.x + a.w && b.x + b.w > a.x && b.y < a.y + a.h && b.y + b.h > a.y) {
+          a.alive = false; score += (3 - a.t) * 10 + wave * 5; sync();
+          burst(a.x + a.w / 2, a.y + a.h / 2, ['#ff5b7f','#ffe14d','#22e5c8'][a.t]);
+          ARC.sfx.hit();
+          return false;
+        }
+      }
+      return true;
+    });
+
+    bombs = bombs.filter(function (b) {
+      if (b.y > H) return false;
+      if (hitsBunker(b)) return false;
+      if (b.x < ship.x + ship.w && b.x + b.w > ship.x && b.y < ship.y + ship.h && b.y + b.h > ship.y) { hitShip(); return false; }
+      return true;
+    });
+
+    parts.forEach(function (p) { p.x += p.vx; p.y += p.vy; p.vy += .12; p.life -= .032; });
+    parts = parts.filter(function (p) { return p.life > 0; });
+
+    if (!aliens.some(function (a) { return a.alive; })) {
+      wave++; score += 100; sync(); ARC.sfx.win();
+      makeWave(wave); if (wave % 2 === 0) makeBunkers();
+    }
+  }
+
+  function hitShip(instant) {
+    lives--; sync(); burst(ship.x + 20, ship.y + 8, '#22e5c8', 26); ARC.sfx.bad();
+    bombs = [];
+    if (lives <= 0 || instant) return die();
+    ship.x = W / 2 - 20;
+  }
+  function die() {
+    alive = false; lives = Math.max(0, lives); sync();
+    var rec = ARC.store.submit('invaders', score);
+    $('best').textContent = ARC.store.best('invaders');
+    over.show(rec ? 'New record!' : 'Earth is toast',
+      '<div class="big">' + score + '</div><p>Survived to wave ' + wave + (rec ? ' · personal best' : '') + '</p>');
+  }
+
+  function sprite(a) {
+    var g = SPR[a.t], px = a.w / 10, col = ['#ff5b7f','#ffe14d','#22e5c8'][a.t];
+    ctx.fillStyle = col;
+    for (var y = 0; y < 8; y++) {
+      var row = g[(y + (a.f ? 1 : 0)) % 8];
+      for (var x = 0; x < 10; x++) if (row[x] === '1') ctx.fillRect(a.x + x * px, a.y + y * (a.h / 8), px + .5, a.h / 8 + .5);
+    }
+  }
+
+  function draw() {
+    ctx.fillStyle = '#05050b'; ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = 'rgba(255,255,255,.35)';
+    stars.forEach(function (s) { ctx.fillRect(s.x, s.y, s.s, s.s); });
+
+    aliens.forEach(function (a) { if (a.alive) sprite(a); });
+
+    if (saucer) {
+      ctx.save(); ctx.shadowColor = '#ff3ea5'; ctx.shadowBlur = 18; ctx.fillStyle = '#ff3ea5';
+      ctx.beginPath(); ctx.ellipse(saucer.x + 22, saucer.y + 12, 22, 7, 0, 0, 7); ctx.fill();
+      ctx.fillStyle = '#ffd1e8'; ctx.beginPath(); ctx.ellipse(saucer.x + 22, saucer.y + 6, 11, 7, 0, Math.PI, 0); ctx.fill();
+      ctx.restore();
+    }
+
+    bunkers.forEach(function (k) {
+      ctx.fillStyle = ['#134e2a','#1f7a3f','#3ddc84'][k.hp - 1] || '#3ddc84';
+      ctx.fillRect(k.x, k.y, k.s - 1, k.s - 1);
+    });
+
+    ctx.fillStyle = '#b6fff2';
+    bullets.forEach(function (b) { ctx.fillRect(b.x, b.y, b.w, b.h); });
+    ctx.fillStyle = '#ff8fb0';
+    bombs.forEach(function (b) { ctx.fillRect(b.x, b.y, b.w, b.h); });
+
+    parts.forEach(function (p) { ctx.globalAlpha = Math.max(0, p.life); ctx.fillStyle = p.c; ctx.fillRect(p.x, p.y, 3, 3); });
+    ctx.globalAlpha = 1;
+
+    if (alive) {
+      ctx.save(); ctx.shadowColor = '#22e5c8'; ctx.shadowBlur = 16; ctx.fillStyle = '#22e5c8';
+      ctx.fillRect(ship.x, ship.y + 8, ship.w, 12);
+      ctx.fillRect(ship.x + 13, ship.y + 2, 14, 8);
+      ctx.fillRect(ship.x + 18, ship.y - 4, 4, 8);
+      ctx.restore();
+    }
+    ctx.fillStyle = 'rgba(34,229,200,.45)'; ctx.fillRect(0, H - 6, W, 2);
+    for (var i = 0; i < lives - 1; i++) {
+      ctx.fillStyle = '#22e5c8';
+      ctx.fillRect(14 + i * 26, H - 24, 18, 6); ctx.fillRect(20 + i * 26, H - 29, 6, 5);
+    }
+    if (paused && alive) {
+      ctx.fillStyle = 'rgba(5,5,11,.72)'; ctx.fillRect(0, 0, W, H);
+      ctx.fillStyle = '#eef0ff'; ctx.font = '700 26px Segoe UI,sans-serif'; ctx.textAlign = 'center';
+      ctx.fillText('PAUSED', W / 2, H / 2);
+    }
+  }
+
+  function loop() { step(); draw(); requestAnimationFrame(loop); }
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'ArrowLeft' || e.key === 'a') keys.l = 1;
+    if (e.key === 'ArrowRight' || e.key === 'd') keys.r = 1;
+    if (e.key === ' ') { e.preventDefault(); keys.f = 1; }
+    if (e.key === 'p' || e.key === 'P') paused = !paused;
+    if (e.key === 'Enter' && !alive) reset();
+  });
+  document.addEventListener('keyup', function (e) {
+    if (e.key === 'ArrowLeft' || e.key === 'a') keys.l = 0;
+    if (e.key === 'ArrowRight' || e.key === 'd') keys.r = 0;
+    if (e.key === ' ') keys.f = 0;
+  });
+  document.querySelectorAll('.dpad button').forEach(function (b) {
+    var k = b.dataset.k;
+    function on(e) { e.preventDefault(); keys[k] = 1; }
+    function off() { keys[k] = 0; }
+    b.addEventListener('touchstart', on, { passive: false });
+    b.addEventListener('touchend', off);
+    b.addEventListener('mousedown', on);
+    b.addEventListener('mouseup', off);
+    b.addEventListener('mouseleave', off);
+  });
+  $('go').addEventListener('click', reset);
+  $('pause').addEventListener('click', function () { if (alive) paused = !paused; });
+
+  reset(); loop();
+})();
+</script>
+</body>
+</html>

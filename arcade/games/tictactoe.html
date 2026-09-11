@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tic Tac Toe — Neon Arcade</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⭕</text></svg>">
+<link rel="stylesheet" href="../assets/game.css">
+<style>
+  .ttt{display:grid;grid-template-columns:repeat(3,110px);gap:10px}
+  .sq{
+    height:110px;border-radius:16px;display:grid;place-items:center;font-size:54px;font-weight:900;cursor:pointer;
+    background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);transition:.15s;
+  }
+  .sq:hover{background:rgba(255,255,255,.12);transform:scale(1.04)}
+  .sq.x{color:#22e5c8;text-shadow:0 0 22px rgba(34,229,200,.8)}
+  .sq.o{color:#ff3ea5;text-shadow:0 0 22px rgba(255,62,165,.8)}
+  .sq.win{background:rgba(255,255,255,.2);animation:glow 1s infinite alternate}
+  .sq.set{cursor:default;animation:drop .22s cubic-bezier(.2,1.6,.5,1)}
+  @keyframes drop{from{transform:scale(.3);opacity:0}}
+  @keyframes glow{to{box-shadow:0 0 30px rgba(255,255,255,.45)}}
+  @media(max-width:620px){.ttt{grid-template-columns:repeat(3,86px)}.sq{height:86px;font-size:42px}}
+</style>
+</head>
+<body>
+<div class="bar"><div class="bar-in">
+  <a class="back" href="../index.html">←&nbsp;Arcade</a>
+  <div class="gname">Tic Tac Toe<small>Versus · Strategy</small></div>
+  <div class="hud">
+    <div class="pill"><i>You</i><b id="w">0</b></div>
+    <div class="pill"><i>Draws</i><b id="d">0</b></div>
+    <div class="pill"><i>Them</i><b id="l">0</b></div>
+  </div>
+</div></div>
+
+<div class="stage">
+  <div class="panel">
+    <div class="ttt" id="board"></div>
+    <div class="over" id="over"></div>
+  </div>
+  <div class="btns">
+    <button class="btn primary" id="go">Play again</button>
+    <button class="btn" id="mode">Mode: vs CPU</button>
+    <button class="btn" id="diff">CPU: unbeatable</button>
+  </div>
+  <p class="hint">You are <b style="color:#22e5c8">X</b>. On <i>unbeatable</i> the CPU plays perfect minimax — the best you can hope for is a draw. Drop it to <i>fair</i> if you want to actually win.</p>
+</div>
+
+<script src="../assets/arcade.js"></script>
+<script>
+(function () {
+  'use strict';
+  var board = document.getElementById('board');
+  var over = ARC.overlay(document.getElementById('over'));
+  var $ = function (i) { return document.getElementById(i); };
+  var LINES = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+  var cells, b, turn, done, twoP = false, hard = true, w = 0, d = 0, l = 0;
+
+  function build() {
+    board.innerHTML = '';
+    cells = [];
+    for (var i = 0; i < 9; i++) {
+      var el = document.createElement('div');
+      el.className = 'sq'; el.dataset.i = i;
+      board.appendChild(el); cells.push(el);
+    }
+  }
+  function reset() {
+    b = new Array(9).fill(''); turn = 'X'; done = false;
+    cells.forEach(function (c) { c.className = 'sq'; c.textContent = ''; });
+    over.hide();
+  }
+  function winner(bd) {
+    for (var i = 0; i < LINES.length; i++) {
+      var L = LINES[i];
+      if (bd[L[0]] && bd[L[0]] === bd[L[1]] && bd[L[1]] === bd[L[2]]) return { p: bd[L[0]], line: L };
+    }
+    return bd.indexOf('') < 0 ? { p: 'draw' } : null;
+  }
+
+  function minimax(bd, me, depth) {
+    var res = winner(bd);
+    if (res) {
+      if (res.p === 'draw') return { s: 0 };
+      return { s: res.p === 'O' ? 10 - depth : depth - 10 };
+    }
+    var best = null;
+    for (var i = 0; i < 9; i++) {
+      if (bd[i]) continue;
+      bd[i] = me;
+      var s = minimax(bd, me === 'O' ? 'X' : 'O', depth + 1).s;
+      bd[i] = '';
+      if (!best || (me === 'O' ? s > best.s : s < best.s)) best = { s: s, i: i };
+    }
+    return best;
+  }
+
+  function cpu() {
+    if (done) return;
+    var move;
+    if (hard || Math.random() < 0.55) move = minimax(b.slice(), 'O', 0).i;
+    else { var free = b.map(function (v, i) { return v ? -1 : i; }).filter(function (i) { return i >= 0; }); move = free[(Math.random() * free.length) | 0]; }
+    setTimeout(function () { play(move); }, 260);
+  }
+
+  function play(i) {
+    if (done || b[i]) return;
+    b[i] = turn;
+    cells[i].textContent = turn;
+    cells[i].classList.add('set', turn.toLowerCase());
+    ARC.sfx.pick(turn === 'X' ? 700 : 480);
+
+    var res = winner(b);
+    if (res) {
+      done = true;
+      if (res.p === 'draw') {
+        d++; $('d').textContent = d; ARC.sfx.hit();
+        over.show('Draw', '<p>Nobody blinked. Go again.</p>');
+      } else {
+        res.line.forEach(function (k) { cells[k].classList.add('win'); });
+        if (res.p === 'X') { w++; $('w').textContent = w; ARC.sfx.win(); }
+        else { l++; $('l').textContent = l; ARC.sfx.bad(); }
+        over.show(res.p === 'X' ? (twoP ? 'X wins!' : 'You win!') : (twoP ? 'O wins!' : 'CPU wins'),
+          '<p>' + w + ' wins · ' + d + ' draws · ' + l + ' losses this session</p>');
+      }
+      return;
+    }
+    turn = turn === 'X' ? 'O' : 'X';
+    if (!twoP && turn === 'O') cpu();
+  }
+
+  board.addEventListener('click', function (e) {
+    var el = e.target.closest('.sq'); if (!el) return;
+    if (!twoP && turn !== 'X') return;
+    play(+el.dataset.i);
+  });
+  $('go').addEventListener('click', reset);
+  $('mode').addEventListener('click', function () {
+    twoP = !twoP;
+    $('mode').textContent = 'Mode: ' + (twoP ? '2 players' : 'vs CPU');
+    $('diff').style.opacity = twoP ? .4 : 1;
+    reset();
+  });
+  $('diff').addEventListener('click', function () {
+    hard = !hard;
+    $('diff').textContent = 'CPU: ' + (hard ? 'unbeatable' : 'fair');
+  });
+
+  build(); reset();
+})();
+</script>
+</body>
+</html>

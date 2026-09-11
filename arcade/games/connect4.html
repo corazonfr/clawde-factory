@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Connect Four — Neon Arcade</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔴</text></svg>">
+<link rel="stylesheet" href="../assets/game.css">
+</head>
+<body>
+<div class="bar"><div class="bar-in">
+  <a class="back" href="../index.html">←&nbsp;Arcade</a>
+  <div class="gname">Connect Four<small>Versus · Strategy</small></div>
+  <div class="hud">
+    <div class="pill"><i>You</i><b id="w">0</b></div>
+    <div class="pill"><i>Them</i><b id="l">0</b></div>
+    <div class="pill"><i>Turn</i><b id="turn">You</b></div>
+  </div>
+</div></div>
+
+<div class="stage">
+  <div class="panel">
+    <canvas id="cv"></canvas>
+    <div class="over" id="over"></div>
+  </div>
+  <div class="btns">
+    <button class="btn primary" id="go">New game</button>
+    <button class="btn" id="mode">Mode: vs CPU</button>
+    <button class="btn" id="diff">CPU: smart</button>
+  </div>
+  <p class="hint">Click a column (or press <kbd>1</kbd>–<kbd>7</kbd>) to drop a disc. Four in a row — across, down or diagonal — wins it.</p>
+</div>
+
+<script src="../assets/arcade.js"></script>
+<script>
+(function () {
+  'use strict';
+  var COLS = 7, ROWS = 6, CELL = 74, PAD = 10;
+  var W = COLS * CELL + PAD * 2, TOP = 52, H = ROWS * CELL + PAD * 2 + TOP;
+  var cv = document.getElementById('cv');
+  var ctx = ARC.fit(cv, W, H); ARC.responsive(cv, W);
+  var over = ARC.overlay(document.getElementById('over'));
+  var $ = function (i) { return document.getElementById(i); };
+
+  var grid, turn, done, anim = null, hoverCol = -1, winCells = [], twoP = false, depth = 5, w = 0, l = 0, busy = false;
+
+  function reset() {
+    grid = []; for (var r = 0; r < ROWS; r++) grid.push(new Array(COLS).fill(0));
+    turn = 1; done = false; winCells = []; anim = null; busy = false;
+    $('turn').textContent = 'You'; over.hide();
+  }
+  function drop(g, c, p) {
+    for (var r = ROWS - 1; r >= 0; r--) if (!g[r][c]) { g[r][c] = p; return r; }
+    return -1;
+  }
+  function winFrom(g) {
+    var dirs = [[0,1],[1,0],[1,1],[1,-1]];
+    for (var r = 0; r < ROWS; r++) for (var c = 0; c < COLS; c++) {
+      var p = g[r][c]; if (!p) continue;
+      for (var d = 0; d < 4; d++) {
+        var dr = dirs[d][0], dc = dirs[d][1], line = [[r, c]];
+        for (var k = 1; k < 4; k++) {
+          var nr = r + dr * k, nc = c + dc * k;
+          if (nr < 0 || nc < 0 || nr >= ROWS || nc >= COLS || g[nr][nc] !== p) break;
+          line.push([nr, nc]);
+        }
+        if (line.length === 4) return { p: p, line: line };
+      }
+    }
+    return null;
+  }
+  function full(g) { return g[0].every(function (v) { return v; }); }
+
+  /* ---- AI: negamax with alpha-beta over a simple window score ---- */
+  function scoreWindow(cells, p) {
+    var me = 0, you = 0, empty = 0;
+    cells.forEach(function (v) { if (v === p) me++; else if (v) you++; else empty++; });
+    if (me === 4) return 10000;
+    if (you === 4) return -10000;
+    if (me === 3 && empty === 1) return 60;
+    if (me === 2 && empty === 2) return 8;
+    if (you === 3 && empty === 1) return -70;
+    if (you === 2 && empty === 2) return -9;
+    return 0;
+  }
+  function evaluate(g, p) {
+    var s = 0, r, c, k;
+    for (r = 0; r < ROWS; r++) for (c = 0; c < COLS; c++) if (g[r][c] === p) s += [1,2,4,6,4,2,1][c];
+    for (r = 0; r < ROWS; r++) for (c = 0; c + 3 < COLS; c++) s += scoreWindow([g[r][c],g[r][c+1],g[r][c+2],g[r][c+3]], p);
+    for (c = 0; c < COLS; c++) for (r = 0; r + 3 < ROWS; r++) s += scoreWindow([g[r][c],g[r+1][c],g[r+2][c],g[r+3][c]], p);
+    for (r = 0; r + 3 < ROWS; r++) for (c = 0; c + 3 < COLS; c++) s += scoreWindow([g[r][c],g[r+1][c+1],g[r+2][c+2],g[r+3][c+3]], p);
+    for (r = 3; r < ROWS; r++) for (c = 0; c + 3 < COLS; c++) s += scoreWindow([g[r][c],g[r-1][c+1],g[r-2][c+2],g[r-3][c+3]], p);
+    return s;
+  }
+  function clone(g) { return g.map(function (r) { return r.slice(); }); }
+  function valid(g) {
+    var out = [];
+    [3,2,4,1,5,0,6].forEach(function (c) { if (!g[0][c]) out.push(c); });
+    return out;
+  }
+  function negamax(g, d, a, bta, p) {
+    var win = winFrom(g);
+    if (win) return { s: (win.p === p ? 100000 : -100000) - (win.p === p ? -d : d) };
+    if (full(g) || d === 0) return { s: evaluate(g, p) };
+    var best = { s: -Infinity, c: valid(g)[0] };
+    var moves = valid(g);
+    for (var i = 0; i < moves.length; i++) {
+      var g2 = clone(g); drop(g2, moves[i], p);
+      var s = -negamax(g2, d - 1, -bta, -a, p === 1 ? 2 : 1).s;
+      if (s > best.s) best = { s: s, c: moves[i] };
+      a = Math.max(a, s);
+      if (a >= bta) break;
+    }
+    return best;
+  }
+
+  function cpuMove() {
+    busy = true;
+    setTimeout(function () {
+      var c;
+      if (depth === 0) { var v = valid(grid); c = v[(Math.random() * v.length) | 0]; }
+      else c = negamax(clone(grid), depth, -Infinity, Infinity, 2).c;
+      busy = false;
+      place(c);
+    }, 220);
+  }
+
+  function place(c) {
+    if (done || anim || c == null || grid[0][c]) return;
+    var row = -1;
+    for (var r = ROWS - 1; r >= 0; r--) if (!grid[r][c]) { row = r; break; }
+    var p = turn;
+    anim = { c: c, row: row, p: p, y: PAD - CELL, vy: 4 };
+  }
+
+  function settle() {
+    grid[anim.row][anim.c] = anim.p;
+    var pl = anim.p;
+    anim = null;
+    ARC.sfx.hit();
+    var win = winFrom(grid);
+    if (win) {
+      done = true; winCells = win.line;
+      if (win.p === 1) { w++; $('w').textContent = w; ARC.sfx.win(); }
+      else { l++; $('l').textContent = l; ARC.sfx.bad(); }
+      over.show(win.p === 1 ? (twoP ? 'Red wins!' : 'You win!') : (twoP ? 'Yellow wins!' : 'CPU wins'),
+        '<p>Session: ' + w + ' – ' + l + '</p>');
+      return;
+    }
+    if (full(grid)) { done = true; over.show('Draw', '<p>Board full, nobody linked four.</p>'); return; }
+    turn = pl === 1 ? 2 : 1;
+    $('turn').textContent = turn === 1 ? (twoP ? 'Red' : 'You') : (twoP ? 'Yellow' : 'CPU');
+    if (!twoP && turn === 2) cpuMove();
+  }
+
+  function disc(x, y, p, glow) {
+    ctx.save();
+    var c1 = p === 1 ? '#ff5b5b' : '#ffe14d', c2 = p === 1 ? '#b91c1c' : '#ca8a04';
+    if (glow) { ctx.shadowColor = c1; ctx.shadowBlur = 26; }
+    var g = ctx.createRadialGradient(x - 8, y - 8, 4, x, y, CELL / 2 - 7);
+    g.addColorStop(0, c1); g.addColorStop(1, c2);
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.arc(x, y, CELL / 2 - 7, 0, 7); ctx.fill();
+    ctx.restore();
+  }
+
+  function draw() {
+    ctx.fillStyle = '#05050b'; ctx.fillRect(0, 0, W, H);
+
+    /* board slab */
+    ctx.save(); ctx.translate(0, TOP);
+    var bg = ctx.createLinearGradient(0, 0, 0, ROWS * CELL);
+    bg.addColorStop(0, '#3b2c8f'); bg.addColorStop(1, '#1d1548');
+    ctx.fillStyle = bg;
+    ctx.beginPath();
+    if (ctx.roundRect) ctx.roundRect(0, 0, W, ROWS * CELL + PAD * 2, 16); else ctx.rect(0, 0, W, ROWS * CELL + PAD * 2);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,.12)'; ctx.lineWidth = 1.5; ctx.stroke();
+
+    for (var r = 0; r < ROWS; r++) for (var c = 0; c < COLS; c++) {
+      var cx = PAD + c * CELL + CELL / 2, cy = PAD + r * CELL + CELL / 2;
+      if (grid[r][c]) {
+        var isWin = winCells.some(function (k) { return k[0] === r && k[1] === c; });
+        disc(cx, cy, grid[r][c], isWin);
+      } else {
+        var hole = ctx.createRadialGradient(cx - 6, cy - 6, 2, cx, cy, CELL / 2 - 7);
+        hole.addColorStop(0, '#0a0916'); hole.addColorStop(1, '#05050b');
+        ctx.fillStyle = hole;
+        ctx.beginPath(); ctx.arc(cx, cy, CELL / 2 - 7, 0, 7); ctx.fill();
+        ctx.strokeStyle = 'rgba(0,0,0,.5)'; ctx.lineWidth = 2; ctx.stroke();
+      }
+    }
+    /* column highlight under the cursor */
+    if (!done && !anim && !busy && hoverCol >= 0 && hoverCol < COLS && !grid[0][hoverCol]) {
+      ctx.fillStyle = 'rgba(255,255,255,.06)';
+      ctx.fillRect(PAD + hoverCol * CELL, 0, CELL, ROWS * CELL + PAD * 2);
+    }
+    if (winCells.length) {
+      ctx.strokeStyle = 'rgba(255,255,255,.92)'; ctx.lineWidth = 5; ctx.lineCap = 'round';
+      var a = winCells[0], z = winCells[3];
+      ctx.beginPath();
+      ctx.moveTo(PAD + a[1] * CELL + CELL / 2, PAD + a[0] * CELL + CELL / 2);
+      ctx.lineTo(PAD + z[1] * CELL + CELL / 2, PAD + z[0] * CELL + CELL / 2);
+      ctx.stroke();
+    }
+    ctx.restore();
+
+    /* disc in hand / falling */
+    if (anim) disc(PAD + anim.c * CELL + CELL / 2, anim.y + TOP + CELL / 2, anim.p, false);
+    else if (!done && !busy && hoverCol >= 0 && hoverCol < COLS && !grid[0][hoverCol]) {
+      ctx.globalAlpha = .5;
+      disc(PAD + hoverCol * CELL + CELL / 2, TOP / 2 + 5, turn, false);
+      ctx.globalAlpha = 1;
+    }
+  }
+
+  function loop() {
+    if (anim) {
+      anim.vy += 1.6; anim.y += anim.vy;
+      if (anim.y >= PAD + anim.row * CELL) { anim.y = PAD + anim.row * CELL; settle(); }
+    }
+    draw(); requestAnimationFrame(loop);
+  }
+
+  function colAt(clientX) {
+    var r = cv.getBoundingClientRect();
+    return Math.floor(((clientX - r.left) * (W / r.width) - PAD) / CELL);
+  }
+  cv.addEventListener('mousemove', function (e) { hoverCol = colAt(e.clientX); });
+  cv.addEventListener('mouseleave', function () { hoverCol = -1; });
+  cv.addEventListener('click', function (e) {
+    if (busy || (!twoP && turn === 2)) return;
+    var c = colAt(e.clientX);
+    if (c >= 0 && c < COLS) place(c);
+  });
+  document.addEventListener('keydown', function (e) {
+    var n = parseInt(e.key, 10);
+    if (n >= 1 && n <= 7 && !busy && (twoP || turn === 1)) place(n - 1);
+    if (e.key === 'Enter' && done) reset();
+  });
+
+  $('go').addEventListener('click', reset);
+  $('mode').addEventListener('click', function () {
+    twoP = !twoP;
+    $('mode').textContent = 'Mode: ' + (twoP ? '2 players' : 'vs CPU');
+    $('diff').style.opacity = twoP ? .4 : 1;
+    reset();
+  });
+  $('diff').addEventListener('click', function () {
+    depth = depth === 5 ? 2 : depth === 2 ? 0 : 5;
+    $('diff').textContent = 'CPU: ' + (depth === 5 ? 'smart' : depth === 2 ? 'okay' : 'random');
+  });
+
+  reset(); loop();
+})();
+</script>
+</body>
+</html>

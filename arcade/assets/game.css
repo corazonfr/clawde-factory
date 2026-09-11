@@ -1,0 +1,84 @@
+/* ========= NEON ARCADE — shared game chrome ========= */
+*,*::before,*::after{box-sizing:border-box}
+:root{
+  --bg:#07070d;--txt:#eef0ff;--dim:#8e93b5;
+  --line:rgba(255,255,255,.09);--card:rgba(255,255,255,.045);
+  --a1:#7c5cff;--a2:#ff3ea5;--a3:#22e5c8;--a4:#ffb339;
+}
+html,body{height:100%}
+body{
+  margin:0;min-height:100%;color:var(--txt);background:var(--bg);
+  font-family:"Segoe UI",system-ui,-apple-system,Inter,Roboto,sans-serif;
+  display:flex;flex-direction:column;align-items:center;
+  overflow-x:hidden;-webkit-tap-highlight-color:transparent;
+}
+body::before{
+  content:"";position:fixed;inset:-25%;z-index:-2;
+  background:radial-gradient(45% 40% at 20% 15%,rgba(124,92,255,.34),transparent 60%),
+             radial-gradient(42% 38% at 82% 80%,rgba(255,62,165,.26),transparent 62%),
+             radial-gradient(40% 40% at 60% 40%,rgba(34,229,200,.16),transparent 62%);
+  filter:blur(30px);
+}
+/* top bar */
+.bar{
+  width:100%;position:sticky;top:0;z-index:20;border-bottom:1px solid var(--line);
+  background:linear-gradient(180deg,rgba(7,7,13,.94),rgba(7,7,13,.6));
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+}
+.bar-in{max-width:980px;margin:0 auto;padding:12px 18px;display:flex;align-items:center;gap:14px}
+.back{
+  display:inline-flex;align-items:center;gap:8px;text-decoration:none;color:var(--txt);font-size:13.5px;font-weight:600;
+  padding:8px 14px;border-radius:10px;background:var(--card);border:1px solid var(--line);transition:.18s;
+}
+.back:hover{background:rgba(255,255,255,.1);transform:translateX(-3px)}
+.gname{font-size:15px;font-weight:800;letter-spacing:-.2px}
+.gname small{display:block;font-size:10.5px;letter-spacing:1.6px;text-transform:uppercase;color:var(--dim);font-weight:600}
+.hud{margin-left:auto;display:flex;gap:9px;flex-wrap:wrap;justify-content:flex-end}
+.pill{
+  padding:7px 13px;border-radius:10px;font-size:12px;font-weight:700;letter-spacing:.4px;
+  background:var(--card);border:1px solid var(--line);white-space:nowrap;
+}
+.pill i{font-style:normal;color:var(--dim);font-weight:600;margin-right:6px;font-size:10.5px;letter-spacing:1.2px;text-transform:uppercase}
+.pill b{font-variant-numeric:tabular-nums}
+/* stage */
+.stage{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:26px 16px 40px;width:100%}
+.panel{
+  position:relative;border-radius:20px;padding:14px;background:rgba(255,255,255,.035);
+  border:1px solid var(--line);box-shadow:0 30px 70px -32px #000, inset 0 1px 0 rgba(255,255,255,.07);
+}
+canvas{display:block;border-radius:12px;background:#05050b;touch-action:none;max-width:100%}
+/* buttons */
+.btns{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+button.btn{
+  font-family:inherit;font-size:13px;font-weight:700;letter-spacing:.3px;cursor:pointer;color:var(--txt);
+  padding:11px 20px;border-radius:11px;border:1px solid var(--line);background:var(--card);transition:.18s;
+}
+button.btn:hover{background:rgba(255,255,255,.11);transform:translateY(-2px)}
+button.btn:active{transform:translateY(0)}
+button.btn.primary{
+  border-color:transparent;color:#fff;background:linear-gradient(135deg,var(--a1),var(--a2));
+  box-shadow:0 10px 26px -10px var(--a1);
+}
+.hint{font-size:12.5px;color:var(--dim);text-align:center;line-height:1.7;max-width:520px}
+.hint kbd{background:rgba(255,255,255,.08);border:1px solid var(--line);border-radius:5px;padding:2px 7px;font-size:11px;font-family:inherit}
+/* overlay */
+.over{
+  position:absolute;inset:0;z-index:5;display:none;flex-direction:column;align-items:center;justify-content:center;gap:12px;
+  border-radius:20px;text-align:center;padding:26px;
+  background:radial-gradient(60% 60% at 50% 45%,rgba(14,14,28,.86),rgba(5,5,11,.96));
+  backdrop-filter:blur(5px);
+}
+.over.show{display:flex;animation:fade .25s}
+@keyframes fade{from{opacity:0;transform:scale(.97)}}
+.over h2{margin:0;font-size:30px;letter-spacing:-1px;background:linear-gradient(100deg,#fff,#b9a6ff 50%,#ff8ecd);-webkit-background-clip:text;background-clip:text;color:transparent}
+.over p{margin:0;color:var(--dim);font-size:13.5px;line-height:1.6}
+.over .big{font-size:46px;font-weight:900;font-variant-numeric:tabular-nums}
+/* touch dpad */
+.dpad{display:none;gap:10px;margin-top:4px}
+.dpad button{
+  width:60px;height:60px;border-radius:16px;font-size:20px;color:var(--txt);
+  background:var(--card);border:1px solid var(--line);cursor:pointer;
+}
+.dpad button:active{background:rgba(255,255,255,.16)}
+@media(hover:none),(max-width:720px){.dpad{display:flex}}
+@media(max-width:620px){.bar-in{flex-wrap:wrap;gap:10px}.hud{width:100%;justify-content:flex-start}}

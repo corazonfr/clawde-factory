@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Minesweeper — Neon Arcade</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💣</text></svg>">
+<link rel="stylesheet" href="../assets/game.css">
+<style>
+  .ms{display:grid;gap:3px;user-select:none}
+  .c{
+    width:32px;height:32px;border-radius:6px;display:grid;place-items:center;
+    font-weight:800;font-size:15px;cursor:pointer;
+    background:linear-gradient(160deg,rgba(255,255,255,.13),rgba(255,255,255,.05));
+    border:1px solid rgba(255,255,255,.08);transition:.1s;
+  }
+  .c:hover{background:rgba(255,255,255,.2);transform:scale(1.06)}
+  .c.open{background:rgba(0,0,0,.32);border-color:rgba(255,255,255,.05);cursor:default;transform:none}
+  .c.open:hover{background:rgba(0,0,0,.32)}
+  .c.boom{background:#ff3b5c;animation:shakec .3s}
+  .c.flag{background:linear-gradient(160deg,#ffb339,#ff6a3d);color:#2a1600}
+  @keyframes shakec{25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
+  .n1{color:#5b8cff}.n2{color:#3ddc84}.n3{color:#ff5b7f}.n4{color:#c77dff}
+  .n5{color:#ffb339}.n6{color:#22e5c8}.n7{color:#eef0ff}.n8{color:#8e93b5}
+  @media(max-width:620px){.c{width:26px;height:26px;font-size:13px}}
+</style>
+</head>
+<body>
+<div class="bar"><div class="bar-in">
+  <a class="back" href="../index.html">←&nbsp;Arcade</a>
+  <div class="gname">Minesweeper<small>Puzzle · Brainy</small></div>
+  <div class="hud">
+    <div class="pill"><i>Mines</i><b id="mines">0</b></div>
+    <div class="pill"><i>Time</i><b id="time">0</b></div>
+    <div class="pill"><i>Best</i><b id="best">—</b></div>
+  </div>
+</div></div>
+
+<div class="stage">
+  <div class="panel">
+    <div class="ms" id="ms"></div>
+    <div class="over" id="over"></div>
+  </div>
+  <div class="btns">
+    <button class="btn primary" id="go">New game</button>
+    <button class="btn" data-lv="easy">Easy 9×9</button>
+    <button class="btn" data-lv="med">Medium 14×14</button>
+    <button class="btn" data-lv="hard">Hard 18×14</button>
+    <button class="btn" id="flagMode">Flag mode: off</button>
+  </div>
+  <p class="hint">Left click reveals · right click (or flag mode) plants a flag · the first click is always safe. Best time is saved per session.</p>
+</div>
+
+<script src="../assets/arcade.js"></script>
+<script>
+(function () {
+  'use strict';
+  var LV = { easy: [9, 9, 10], med: [14, 14, 34], hard: [18, 14, 55] };
+  var ms = document.getElementById('ms');
+  var over = ARC.overlay(document.getElementById('over'));
+  var $ = function (i) { return document.getElementById(i); };
+  var cols, rows, bombs, cells, started, done, flags, opened, timer = null, secs = 0, lvl = 'easy', flagMode = false;
+
+  function showBest() {
+    var b = ARC.store.best('mine_' + lvl);
+    $('best').textContent = b ? b + 's' : '—';
+  }
+
+  function reset() {
+    var L = LV[lvl]; cols = L[0]; rows = L[1]; bombs = L[2];
+    started = false; done = false; flags = 0; opened = 0; secs = 0;
+    clearInterval(timer); timer = null;
+    $('time').textContent = 0; $('mines').textContent = bombs; showBest(); over.hide();
+
+    cells = [];
+    ms.innerHTML = '';
+    ms.style.gridTemplateColumns = 'repeat(' + cols + ',auto)';
+    for (var y = 0; y < rows; y++) {
+      cells.push([]);
+      for (var x = 0; x < cols; x++) {
+        var el = document.createElement('div');
+        el.className = 'c';
+        el.dataset.x = x; el.dataset.y = y;
+        ms.appendChild(el);
+        cells[y].push({ x: x, y: y, el: el, bomb: false, open: false, flag: false, n: 0 });
+      }
+    }
+  }
+
+  function plant(sx, sy) {
+    var spots = [];
+    for (var y = 0; y < rows; y++) for (var x = 0; x < cols; x++) {
+      if (Math.abs(x - sx) <= 1 && Math.abs(y - sy) <= 1) continue;
+      spots.push([x, y]);
+    }
+    for (var i = 0; i < bombs && spots.length; i++) {
+      var k = (Math.random() * spots.length) | 0;
+      cells[spots[k][1]][spots[k][0]].bomb = true;
+      spots.splice(k, 1);
+    }
+    for (var yy = 0; yy < rows; yy++) for (var xx = 0; xx < cols; xx++) {
+      cells[yy][xx].n = neighbours(xx, yy).filter(function (c) { return c.bomb; }).length;
+    }
+    started = true;
+    timer = setInterval(function () { secs++; $('time').textContent = secs; }, 1000);
+  }
+
+  function neighbours(x, y) {
+    var out = [];
+    for (var dy = -1; dy <= 1; dy++) for (var dx = -1; dx <= 1; dx++) {
+      if (!dx && !dy) continue;
+      var nx = x + dx, ny = y + dy;
+      if (nx >= 0 && ny >= 0 && nx < cols && ny < rows) out.push(cells[ny][nx]);
+    }
+    return out;
+  }
+
+  function reveal(c) {
+    if (c.open || c.flag || done) return;
+    c.open = true; opened++;
+    c.el.classList.add('open');
+    if (c.bomb) { c.el.textContent = '💣'; c.el.classList.add('boom'); return lose(c); }
+    if (c.n) { c.el.textContent = c.n; c.el.classList.add('n' + c.n); }
+    else neighbours(c.x, c.y).forEach(reveal);
+    if (opened === cols * rows - bombs) win();
+  }
+
+  function chord(c) {
+    var f = neighbours(c.x, c.y).filter(function (n) { return n.flag; }).length;
+    if (f === c.n) neighbours(c.x, c.y).forEach(function (n) { if (!n.flag) reveal(n); });
+  }
+
+  function flag(c) {
+    if (c.open || done) return;
+    c.flag = !c.flag;
+    c.el.classList.toggle('flag', c.flag);
+    c.el.textContent = c.flag ? '🚩' : '';
+    flags += c.flag ? 1 : -1;
+    $('mines').textContent = bombs - flags;
+    ARC.sfx.pick(c.flag ? 620 : 420);
+  }
+
+  function lose() {
+    done = true; clearInterval(timer); ARC.sfx.bad();
+    cells.forEach(function (row) { row.forEach(function (c) {
+      if (c.bomb && !c.flag) { c.el.classList.add('open'); c.el.textContent = '💣'; }
+      if (!c.bomb && c.flag) { c.el.textContent = '❌'; }
+    }); });
+    over.show('Boom.', '<p>You stepped on a mine after ' + secs + ' seconds.</p>');
+  }
+  function win() {
+    done = true; clearInterval(timer); ARC.sfx.win();
+    var key = 'mine_' + lvl, prev = ARC.store.best(key);
+    var rec = !prev || secs < prev;
+    if (rec) { try { var all = JSON.parse(localStorage.getItem('neonArcade.v1') || '{}'); all.best = all.best || {}; all.best[key] = secs; localStorage.setItem('neonArcade.v1', JSON.stringify(all)); } catch (e) {} }
+    showBest();
+    over.show(rec ? 'Record time!' : 'Board cleared',
+      '<div class="big">' + secs + 's</div><p>' + bombs + ' mines, zero mistakes.</p>');
+  }
+
+  ms.addEventListener('mousedown', function (e) {
+    var el = e.target.closest('.c'); if (!el || done) return;
+    var c = cells[+el.dataset.y][+el.dataset.x];
+    if (!started && e.button === 0) plant(c.x, c.y);
+    if (e.button === 2 || flagMode) { flag(c); return; }
+    if (c.open && c.n) { chord(c); return; }
+    reveal(c);
+    if (!done) ARC.sfx.pick(500);
+  });
+  ms.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+
+  /* long-press to flag on touch */
+  var lp = null;
+  ms.addEventListener('touchstart', function (e) {
+    var el = e.target.closest('.c'); if (!el || done) return;
+    lp = setTimeout(function () {
+      lp = null;
+      flag(cells[+el.dataset.y][+el.dataset.x]);
+    }, 380);
+  }, { passive: true });
+  ms.addEventListener('touchend', function (e) {
+    var el = e.target.closest('.c'); if (!el || done) return;
+    if (lp) {
+      clearTimeout(lp); lp = null;
+      e.preventDefault();
+      var c = cells[+el.dataset.y][+el.dataset.x];
+      if (flagMode) return flag(c);
+      if (!started) plant(c.x, c.y);
+      if (c.open && c.n) return chord(c);
+      reveal(c);
+    }
+  }, { passive: false });
+
+  document.querySelectorAll('[data-lv]').forEach(function (b) {
+    b.addEventListener('click', function () { lvl = b.dataset.lv; reset(); });
+  });
+  $('go').addEventListener('click', reset);
+  $('flagMode').addEventListener('click', function () {
+    flagMode = !flagMode;
+    $('flagMode').textContent = 'Flag mode: ' + (flagMode ? 'on' : 'off');
+  });
+
+  reset();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Reflex Grid — Neon Arcade</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+<link rel="stylesheet" href="../assets/game.css">
+<style>
+  .rg{display:grid;grid-template-columns:repeat(4,92px);gap:10px}
+  .t{
+    height:92px;border-radius:16px;cursor:pointer;position:relative;overflow:hidden;
+    background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.08);transition:.1s;
+  }
+  .t.live{background:linear-gradient(150deg,#fde047,#a855f7);box-shadow:0 0 26px rgba(168,85,247,.7);animation:live .2s}
+  .t.bomb{background:linear-gradient(150deg,#ef4444,#7f1d1d);box-shadow:0 0 26px rgba(239,68,68,.7)}
+  .t.gold{background:linear-gradient(150deg,#fff,#facc15);box-shadow:0 0 30px rgba(250,204,21,.9)}
+  .t:active{transform:scale(.94)}
+  .t span{position:absolute;inset:0;display:grid;place-items:center;font-size:30px}
+  @keyframes live{from{transform:scale(.7)}}
+  .ring{width:100%;height:6px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden;margin-top:12px}
+  .ring i{display:block;height:100%;background:linear-gradient(90deg,#22e5c8,#ff3ea5);transition:width .1s linear}
+  @media(max-width:620px){.rg{grid-template-columns:repeat(4,70px)}.t{height:70px}}
+</style>
+</head>
+<body>
+<div class="bar"><div class="bar-in">
+  <a class="back" href="../index.html">←&nbsp;Arcade</a>
+  <div class="gname">Reflex Grid<small>Casual · Speed</small></div>
+  <div class="hud">
+    <div class="pill"><i>Score</i><b id="score">0</b></div>
+    <div class="pill"><i>Combo</i><b id="combo">×1</b></div>
+    <div class="pill"><i>Time</i><b id="time">30</b></div>
+    <div class="pill"><i>Best</i><b id="best">0</b></div>
+  </div>
+</div></div>
+
+<div class="stage">
+  <div class="panel">
+    <div class="rg" id="rg"></div>
+    <div class="ring"><i id="bar" style="width:100%"></i></div>
+    <div class="over" id="over"></div>
+  </div>
+  <div class="btns"><button class="btn primary" id="go">Start · 30 seconds</button></div>
+  <p class="hint">Hit ⚡ tiles fast — consecutive hits build a combo multiplier. ⭐ is worth triple. 💣 kills your combo and costs you points.</p>
+</div>
+
+<script src="../assets/arcade.js"></script>
+<script>
+(function () {
+  'use strict';
+  var rg = document.getElementById('rg');
+  var over = ARC.overlay(document.getElementById('over'));
+  var $ = function (i) { return document.getElementById(i); };
+  var N = 16, tiles = [], score, combo, left, running, spawnT, tickT, gap;
+  $('best').textContent = ARC.store.best('reflex');
+
+  for (var i = 0; i < N; i++) {
+    var el = document.createElement('div');
+    el.className = 't'; el.innerHTML = '<span></span>';
+    rg.appendChild(el);
+    tiles.push({ el: el, kind: null, timer: null });
+    (function (t) { el.addEventListener('mousedown', function () { hit(t); }); el.addEventListener('touchstart', function (e) { e.preventDefault(); hit(t); }, { passive: false }); })(tiles[i]);
+  }
+
+  function clearTile(t) {
+    clearTimeout(t.timer); t.timer = null; t.kind = null;
+    t.el.className = 't'; t.el.firstChild.textContent = '';
+  }
+
+  function light() {
+    if (!running) return;
+    var free = tiles.filter(function (t) { return !t.kind; });
+    if (free.length) {
+      var t = free[(Math.random() * free.length) | 0];
+      var r = Math.random();
+      t.kind = r < 0.12 ? 'bomb' : r < 0.20 ? 'gold' : 'live';
+      t.el.classList.add(t.kind);
+      t.el.firstChild.textContent = t.kind === 'bomb' ? '💣' : t.kind === 'gold' ? '⭐' : '⚡';
+      var life = t.kind === 'gold' ? 900 : 1250 - Math.min(650, (30 - left) * 24);
+      t.timer = setTimeout(function () {
+        if (t.kind === 'live' || t.kind === 'gold') { combo = 1; $('combo').textContent = '×1'; }
+        clearTile(t);
+      }, life);
+    }
+    gap = Math.max(230, 700 - (30 - left) * 17);
+    spawnT = setTimeout(light, gap);
+  }
+
+  function hit(t) {
+    if (!running || !t.kind) {
+      if (running && !t.kind) { score = Math.max(0, score - 5); combo = 1; $('combo').textContent = '×1'; $('score').textContent = score; ARC.sfx.hit(); }
+      return;
+    }
+    if (t.kind === 'bomb') {
+      score = Math.max(0, score - 40); combo = 1;
+      ARC.sfx.bad(); document.body.animate([{ filter: 'hue-rotate(0)' }, { filter: 'hue-rotate(60deg)' }, { filter: 'none' }], 220);
+    } else {
+      var base = t.kind === 'gold' ? 45 : 15;
+      score += base * combo;
+      combo = Math.min(9, combo + 1);
+      ARC.sfx.pick(560 + combo * 90);
+    }
+    $('combo').textContent = '×' + combo;
+    $('score').textContent = score;
+    clearTile(t);
+  }
+
+  function start() {
+    tiles.forEach(clearTile);
+    clearTimeout(spawnT); clearInterval(tickT);
+    score = 0; combo = 1; left = 30; running = true;
+    $('score').textContent = 0; $('combo').textContent = '×1'; $('time').textContent = 30;
+    $('bar').style.width = '100%'; over.hide();
+    $('go').textContent = 'Restart';
+    light();
+    var start = Date.now();
+    tickT = setInterval(function () {
+      var el = (Date.now() - start) / 1000;
+      left = Math.max(0, 30 - el);
+      $('time').textContent = Math.ceil(left);
+      $('bar').style.width = (left / 30 * 100) + '%';
+      if (left <= 0) end();
+    }, 100);
+  }
+
+  function end() {
+    running = false;
+    clearInterval(tickT); clearTimeout(spawnT);
+    tiles.forEach(clearTile);
+    var rec = ARC.store.submit('reflex', score);
+    $('best').textContent = ARC.store.best('reflex');
+    ARC.sfx.win();
+    over.show(rec ? 'New record!' : "Time's up",
+      '<div class="big">' + score + '</div><p>' + (rec ? 'Fastest fingers yet.' : 'Best: ' + ARC.store.best('reflex')) + '</p>');
+  }
+
+  $('go').addEventListener('click', start);
+  document.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); start(); } });
+  over.show('Reflex Grid', '<p>30 seconds. Hit every ⚡ you can. Press start when your hand is ready.</p>');
+})();
+</script>
+</body>
+</html>

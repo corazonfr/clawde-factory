@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Flap Dash — Neon Arcade</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐤</text></svg>">
+<link rel="stylesheet" href="../assets/game.css">
+</head>
+<body>
+<div class="bar"><div class="bar-in">
+  <a class="back" href="../index.html">←&nbsp;Arcade</a>
+  <div class="gname">Flap Dash<small>Arcade · Rage</small></div>
+  <div class="hud">
+    <div class="pill"><i>Score</i><b id="score">0</b></div>
+    <div class="pill"><i>Best</i><b id="best">0</b></div>
+  </div>
+</div></div>
+
+<div class="stage">
+  <div class="panel">
+    <canvas id="cv"></canvas>
+    <div class="over" id="over"></div>
+  </div>
+  <div class="btns"><button class="btn primary" id="go">Restart</button></div>
+  <p class="hint">Click, tap or press <kbd>Space</kbd> to flap. That's the whole game. Good luck.</p>
+</div>
+
+<script src="../assets/arcade.js"></script>
+<script>
+(function () {
+  'use strict';
+  var W = 460, H = 560, GROUND = 66;
+  var cv = document.getElementById('cv');
+  var ctx = ARC.fit(cv, W, H); ARC.responsive(cv, W);
+  var over = ARC.overlay(document.getElementById('over'));
+  var $ = function (i) { return document.getElementById(i); };
+
+  var bird, pipes, score, alive, started, t = 0, shake = 0, puffs;
+  $('best').textContent = ARC.store.best('flappy');
+
+  function reset() {
+    bird = { x: 120, y: H / 2, v: 0, r: 14, rot: 0 };
+    pipes = []; puffs = []; score = 0; alive = true; started = false; shake = 0;
+    addPipe(W + 80); addPipe(W + 80 + 220); addPipe(W + 80 + 440);
+    $('score').textContent = 0; over.hide();
+  }
+  function addPipe(x) {
+    var gap = Math.max(120, 176 - score * 2);
+    var top = 60 + Math.random() * (H - GROUND - gap - 130);
+    pipes.push({ x: x, top: top, gap: gap, w: 62, passed: false });
+  }
+  function flap() {
+    if (!alive) return;
+    started = true; bird.v = -6.6; ARC.sfx.pick(760);
+    puffs.push({ x: bird.x - 12, y: bird.y + 6, r: 3, life: 1 });
+  }
+
+  function step() {
+    t++;
+    if (!alive) { shake *= .88; return; }
+    if (!started) { bird.y = H / 2 + Math.sin(t / 16) * 8; return; }
+
+    bird.v += 0.42; bird.y += bird.v;
+    bird.rot = Math.max(-0.5, Math.min(1.4, bird.v / 11));
+
+    pipes.forEach(function (p) { p.x -= 2.7 + Math.min(1.6, score * 0.03); });
+    if (pipes[0].x + pipes[0].w < -10) { pipes.shift(); addPipe(pipes[pipes.length - 1].x + 220); }
+
+    pipes.forEach(function (p) {
+      if (!p.passed && p.x + p.w < bird.x) { p.passed = true; score++; $('score').textContent = score; ARC.sfx.good(); }
+      var hitX = bird.x + bird.r > p.x && bird.x - bird.r < p.x + p.w;
+      var hitY = bird.y - bird.r < p.top || bird.y + bird.r > p.top + p.gap;
+      if (hitX && hitY) die();
+    });
+    if (bird.y + bird.r > H - GROUND) { bird.y = H - GROUND - bird.r; die(); }
+    if (bird.y - bird.r < 0) { bird.y = bird.r; bird.v = 0; }
+
+    puffs.forEach(function (p) { p.x -= 2; p.r += .5; p.life -= .05; });
+    puffs = puffs.filter(function (p) { return p.life > 0; });
+  }
+
+  function die() {
+    if (!alive) return;
+    alive = false; shake = 14; ARC.sfx.bad();
+    var rec = ARC.store.submit('flappy', score);
+    $('best').textContent = ARC.store.best('flappy');
+    over.show(rec ? 'New record!' : 'Splat.',
+      '<div class="big">' + score + '</div><p>' + (rec ? 'Highest you have ever flown.' : 'Best: ' + ARC.store.best('flappy') + ' · press Space to go again') + '</p>');
+  }
+
+  function pipe(p) {
+    var g = ctx.createLinearGradient(p.x, 0, p.x + p.w, 0);
+    g.addColorStop(0, '#3ddc84'); g.addColorStop(.5, '#22c55e'); g.addColorStop(1, '#15803d');
+    ctx.fillStyle = g;
+    ctx.fillRect(p.x, 0, p.w, p.top);
+    ctx.fillRect(p.x, p.top + p.gap, p.w, H - GROUND - (p.top + p.gap));
+    ctx.fillStyle = '#4ade80';
+    ctx.fillRect(p.x - 5, p.top - 18, p.w + 10, 18);
+    ctx.fillRect(p.x - 5, p.top + p.gap, p.w + 10, 18);
+    ctx.fillStyle = 'rgba(255,255,255,.22)';
+    ctx.fillRect(p.x + 8, 0, 7, p.top);
+    ctx.fillRect(p.x + 8, p.top + p.gap, 7, H - GROUND - (p.top + p.gap));
+  }
+
+  function draw() {
+    ctx.save();
+    if (shake > .4) ctx.translate((Math.random() - .5) * shake, (Math.random() - .5) * shake);
+
+    var sky = ctx.createLinearGradient(0, 0, 0, H);
+    sky.addColorStop(0, '#1b1040'); sky.addColorStop(.55, '#3b1a52'); sky.addColorStop(1, '#6b2352');
+    ctx.fillStyle = sky; ctx.fillRect(0, 0, W, H);
+
+    /* stars + moon */
+    ctx.fillStyle = 'rgba(255,255,255,.55)';
+    for (var i = 0; i < 34; i++) {
+      var sx = (i * 97 + (t * 0.2)) % W, sy = (i * 53) % (H - GROUND - 120);
+      ctx.globalAlpha = .3 + .5 * Math.abs(Math.sin(t / 40 + i));
+      ctx.fillRect(sx, sy, 2, 2);
+    }
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = '#ffe9b0'; ctx.beginPath(); ctx.arc(W - 70, 76, 26, 0, 7); ctx.fill();
+    ctx.fillStyle = 'rgba(27,16,64,.95)'; ctx.beginPath(); ctx.arc(W - 82, 68, 24, 0, 7); ctx.fill();
+
+    pipes.forEach(pipe);
+
+    /* ground */
+    ctx.fillStyle = '#241238'; ctx.fillRect(0, H - GROUND, W, GROUND);
+    ctx.fillStyle = '#3ddc84'; ctx.fillRect(0, H - GROUND, W, 7);
+    ctx.fillStyle = 'rgba(255,255,255,.06)';
+    for (var g2 = 0; g2 < W / 22 + 2; g2++) {
+      var gx = (g2 * 22 - (started && alive ? (t * 2.7) % 22 : 0));
+      ctx.fillRect(gx, H - GROUND + 12, 12, 6);
+    }
+
+    puffs.forEach(function (p) {
+      ctx.globalAlpha = p.life * .5; ctx.fillStyle = '#fff';
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 7); ctx.fill(); ctx.globalAlpha = 1;
+    });
+
+    /* bird */
+    ctx.save();
+    ctx.translate(bird.x, bird.y); ctx.rotate(bird.rot);
+    ctx.shadowColor = '#ffd23f'; ctx.shadowBlur = 18;
+    ctx.fillStyle = '#ffd23f'; ctx.beginPath(); ctx.ellipse(0, 0, 16, 13, 0, 0, 7); ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = '#f97316';
+    var wing = Math.sin(t / (started ? 4 : 9)) * 5;
+    ctx.beginPath(); ctx.ellipse(-3, 2 + wing * .3, 9, 6 - wing * .3, 0, 0, 7); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(13, 0); ctx.lineTo(24, 3); ctx.lineTo(13, 6); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(7, -4, 4.6, 0, 7); ctx.fill();
+    ctx.fillStyle = '#111'; ctx.beginPath(); ctx.arc(8.6, -4, 2.2, 0, 7); ctx.fill();
+    ctx.restore();
+
+    /* score */
+    ctx.fillStyle = '#fff'; ctx.font = '900 54px Segoe UI,sans-serif'; ctx.textAlign = 'center';
+    ctx.shadowColor = 'rgba(0,0,0,.7)'; ctx.shadowBlur = 12;
+    ctx.fillText(score, W / 2, 86); ctx.shadowBlur = 0;
+
+    if (!started && alive) {
+      ctx.fillStyle = 'rgba(238,240,255,.9)'; ctx.font = '700 17px Segoe UI,sans-serif';
+      ctx.fillText('tap / space to start flapping', W / 2, H / 2 + 80);
+    }
+    ctx.restore();
+  }
+
+  function loop() { step(); draw(); requestAnimationFrame(loop); }
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === ' ' || e.key === 'ArrowUp' || e.key === 'w') { e.preventDefault(); alive ? flap() : reset(); }
+  });
+  cv.addEventListener('mousedown', function () { alive ? flap() : reset(); });
+  cv.addEventListener('touchstart', function (e) { e.preventDefault(); alive ? flap() : reset(); }, { passive: false });
+  $('go').addEventListener('click', reset);
+
+  reset(); loop();
+})();
+</script>
+</body>
+</html>

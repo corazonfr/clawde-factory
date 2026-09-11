@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Simon Says — Neon Arcade</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎵</text></svg>">
+<link rel="stylesheet" href="../assets/game.css">
+<style>
+  .sim{position:relative;width:340px;height:340px;border-radius:50%;overflow:hidden;background:#0a0a14;
+       box-shadow:inset 0 0 0 6px rgba(255,255,255,.06),0 30px 60px -26px #000}
+  .q{position:absolute;width:50%;height:50%;cursor:pointer;opacity:.45;transition:opacity .1s,filter .1s}
+  .q:hover{opacity:.65}
+  .q.lit{opacity:1;filter:brightness(1.6) saturate(1.3)}
+  .q0{top:0;left:0;background:#22e5c8;border-radius:100% 0 0 0}
+  .q1{top:0;right:0;background:#ff3ea5;border-radius:0 100% 0 0}
+  .q2{bottom:0;left:0;background:#ffb339;border-radius:0 0 0 100%}
+  .q3{bottom:0;right:0;background:#5b8cff;border-radius:0 0 100% 0}
+  .hubc{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:132px;height:132px;border-radius:50%;
+        background:#07070d;border:1px solid rgba(255,255,255,.12);display:grid;place-items:center;text-align:center}
+  .hubc b{font-size:34px;font-variant-numeric:tabular-nums;display:block;line-height:1}
+  .hubc i{font-style:normal;font-size:10px;letter-spacing:1.8px;text-transform:uppercase;color:var(--dim)}
+  @media(max-width:620px){.sim{width:280px;height:280px}.hubc{width:110px;height:110px}}
+</style>
+</head>
+<body>
+<div class="bar"><div class="bar-in">
+  <a class="back" href="../index.html">←&nbsp;Arcade</a>
+  <div class="gname">Simon Says<small>Casual · Memory</small></div>
+  <div class="hud">
+    <div class="pill"><i>Round</i><b id="round">0</b></div>
+    <div class="pill"><i>Best</i><b id="best">0</b></div>
+    <div class="pill"><i>Status</i><b id="status">ready</b></div>
+  </div>
+</div></div>
+
+<div class="stage">
+  <div class="panel">
+    <div class="sim" id="sim">
+      <div class="q q0" data-i="0"></div>
+      <div class="q q1" data-i="1"></div>
+      <div class="q q2" data-i="2"></div>
+      <div class="q q3" data-i="3"></div>
+      <div class="hubc"><div><b id="big">0</b><i id="lbl">press start</i></div></div>
+    </div>
+    <div class="over" id="over"></div>
+  </div>
+  <div class="btns">
+    <button class="btn primary" id="go">Start</button>
+    <button class="btn" id="speedBtn">Speed: normal</button>
+  </div>
+  <p class="hint">Watch the pattern, then repeat it. One extra step every round. Keys <kbd>1</kbd>–<kbd>4</kbd> work too.</p>
+</div>
+
+<script src="../assets/arcade.js"></script>
+<script>
+(function () {
+  'use strict';
+  var TONES = [329.6, 440, 554.4, 659.3];
+  var pads = [].slice.call(document.querySelectorAll('.q'));
+  var over = ARC.overlay(document.getElementById('over'));
+  var $ = function (i) { return document.getElementById(i); };
+  var seq, step, playing, accepting, speed = 1;
+  $('best').textContent = ARC.store.best('simon');
+
+  function flash(i, dur) {
+    pads[i].classList.add('lit');
+    ARC.beep(TONES[i], (dur || 340) / 1000, 'sine', 0.13);
+    setTimeout(function () { pads[i].classList.remove('lit'); }, dur || 340);
+  }
+
+  function showSeq() {
+    accepting = false; playing = true;
+    $('status').textContent = 'watch';
+    $('lbl').textContent = 'watch';
+    var gapMs = [620, 440, 300][speed];
+    seq.forEach(function (v, k) {
+      setTimeout(function () { flash(v, gapMs * 0.6); }, k * gapMs + 380);
+    });
+    setTimeout(function () {
+      playing = false; accepting = true; step = 0;
+      $('status').textContent = 'your turn';
+      $('lbl').textContent = 'your turn';
+    }, seq.length * gapMs + 420);
+  }
+
+  function nextRound() {
+    seq.push((Math.random() * 4) | 0);
+    $('round').textContent = seq.length;
+    $('big').textContent = seq.length;
+    showSeq();
+  }
+
+  function start() {
+    seq = []; step = 0; over.hide();
+    $('go').textContent = 'Restart';
+    nextRound();
+  }
+
+  function press(i) {
+    if (!accepting) return;
+    flash(i, 200);
+    if (seq[step] === i) {
+      step++;
+      if (step === seq.length) {
+        accepting = false;
+        $('status').textContent = 'nice';
+        setTimeout(nextRound, 620);
+      }
+    } else {
+      accepting = false;
+      $('status').textContent = 'wrong';
+      $('lbl').textContent = 'game over';
+      ARC.sfx.bad();
+      var reached = seq.length - 1;
+      var rec = ARC.store.submit('simon', reached);
+      $('best').textContent = ARC.store.best('simon');
+      setTimeout(function () {
+        over.show(rec ? 'New record!' : 'Wrong pad',
+          '<div class="big">' + reached + '</div><p>rounds remembered' + (rec ? ' · your best yet' : ' · best is ' + ARC.store.best('simon')) + '</p>');
+      }, 420);
+    }
+  }
+
+  pads.forEach(function (p) {
+    p.addEventListener('mousedown', function () { press(+p.dataset.i); });
+    p.addEventListener('touchstart', function (e) { e.preventDefault(); press(+p.dataset.i); }, { passive: false });
+  });
+  document.addEventListener('keydown', function (e) {
+    var n = parseInt(e.key, 10);
+    if (n >= 1 && n <= 4) press(n - 1);
+    if (e.key === 'Enter') start();
+  });
+  $('go').addEventListener('click', start);
+  $('speedBtn').addEventListener('click', function () {
+    speed = (speed + 1) % 3;
+    $('speedBtn').textContent = 'Speed: ' + ['slow', 'normal', 'fast'][speed];
+  });
+
+  over.show('Simon Says', '<p>Four pads, one growing pattern. How many rounds can your brain hold?</p>');
+})();
+</script>
+</body>
+</html>

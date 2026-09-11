@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Neon Snake — Neon Arcade</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐍</text></svg>">
+<link rel="stylesheet" href="../assets/game.css">
+</head>
+<body>
+<div class="bar"><div class="bar-in">
+  <a class="back" href="../index.html">←&nbsp;Arcade</a>
+  <div class="gname">Neon Snake<small>Arcade · Endless</small></div>
+  <div class="hud">
+    <div class="pill"><i>Score</i><b id="score">0</b></div>
+    <div class="pill"><i>Best</i><b id="best">0</b></div>
+    <div class="pill"><i>Speed</i><b id="lvl">1</b></div>
+  </div>
+</div></div>
+
+<div class="stage">
+  <div class="panel">
+    <canvas id="cv"></canvas>
+    <div class="over" id="over"></div>
+  </div>
+  <div class="btns">
+    <button class="btn primary" id="go">New game</button>
+    <button class="btn" id="pause">Pause</button>
+    <button class="btn" id="wallBtn">Walls: solid</button>
+  </div>
+  <div class="dpad">
+    <button data-d="l">◀</button>
+    <div style="display:grid;gap:10px"><button data-d="u">▲</button><button data-d="d">▼</button></div>
+    <button data-d="r">▶</button>
+  </div>
+  <p class="hint"><kbd>WASD</kbd> / <kbd>arrows</kbd> to steer · <kbd>Space</kbd> pause · eat the glowing fruit, every 5 makes it faster.</p>
+</div>
+
+<script src="../assets/arcade.js"></script>
+<script>
+(function () {
+  'use strict';
+  var COLS = 24, ROWS = 24, CELL = 22, W = COLS * CELL, H = ROWS * CELL;
+  var cv = document.getElementById('cv');
+  var ctx = ARC.fit(cv, W, H);
+  ARC.responsive(cv, W);
+  var over = ARC.overlay(document.getElementById('over'));
+  var $ = function (id) { return document.getElementById(id); };
+
+  var snake, dir, queue, food, score, alive, paused, tick, acc, last, wrap = false, pulse = 0;
+  $('best').textContent = ARC.store.best('snake');
+
+  function spawnFood() {
+    var free = [];
+    for (var y = 0; y < ROWS; y++) for (var x = 0; x < COLS; x++) {
+      var taken = snake.some(function (s) { return s.x === x && s.y === y; });
+      if (!taken) free.push({ x: x, y: y });
+    }
+    food = free[Math.floor(Math.random() * free.length)] || { x: 0, y: 0 };
+  }
+
+  function reset() {
+    snake = [{ x: 11, y: 12 }, { x: 10, y: 12 }, { x: 9, y: 12 }];
+    dir = { x: 1, y: 0 }; queue = []; score = 0; alive = true; paused = false;
+    tick = 130; acc = 0; last = performance.now();
+    spawnFood(); over.hide(); sync();
+  }
+  function sync() {
+    $('score').textContent = score;
+    $('lvl').textContent = Math.min(9, 1 + Math.floor(score / 5));
+  }
+
+  function step() {
+    if (queue.length) {
+      var n = queue.shift();
+      if (n.x !== -dir.x || n.y !== -dir.y) dir = n;
+    }
+    var head = { x: snake[0].x + dir.x, y: snake[0].y + dir.y };
+
+    if (wrap) {
+      head.x = (head.x + COLS) % COLS;
+      head.y = (head.y + ROWS) % ROWS;
+    } else if (head.x < 0 || head.y < 0 || head.x >= COLS || head.y >= ROWS) {
+      return die();
+    }
+    if (snake.some(function (s, i) { return i < snake.length - 1 && s.x === head.x && s.y === head.y; })) return die();
+
+    snake.unshift(head);
+    if (head.x === food.x && head.y === food.y) {
+      score++; sync(); ARC.sfx.pick(520 + score * 18);
+      tick = Math.max(58, 130 - Math.floor(score / 5) * 9);
+      spawnFood();
+    } else {
+      snake.pop();
+    }
+  }
+
+  function die() {
+    alive = false; ARC.sfx.bad();
+    var rec = ARC.store.submit('snake', score);
+    $('best').textContent = ARC.store.best('snake');
+    over.show(rec ? 'New record!' : 'Game over',
+      '<div class="big">' + score + '</div><p>' + (rec ? 'You beat your own high score. Respect.' : 'Best so far: ' + ARC.store.best('snake')) + '</p>');
+  }
+
+  function rr(x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
+  }
+
+  function draw() {
+    ctx.fillStyle = '#05050b'; ctx.fillRect(0, 0, W, H);
+    /* board grid */
+    ctx.strokeStyle = 'rgba(255,255,255,.045)'; ctx.lineWidth = 1;
+    for (var i = 1; i < COLS; i++) {
+      ctx.beginPath(); ctx.moveTo(i * CELL + .5, 0); ctx.lineTo(i * CELL + .5, H); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(0, i * CELL + .5); ctx.lineTo(W, i * CELL + .5); ctx.stroke();
+    }
+    if (!wrap) {
+      ctx.strokeStyle = 'rgba(255,62,165,.35)'; ctx.lineWidth = 3;
+      ctx.strokeRect(1.5, 1.5, W - 3, H - 3);
+    }
+    /* food */
+    pulse += 0.09;
+    var p = 1 + Math.sin(pulse) * 0.14;
+    ctx.save();
+    ctx.shadowColor = '#ff3ea5'; ctx.shadowBlur = 22;
+    ctx.fillStyle = '#ff5bb0';
+    var fs = CELL * 0.62 * p, fo = (CELL - fs) / 2;
+    rr(food.x * CELL + fo, food.y * CELL + fo, fs, fs, fs / 2.6); ctx.fill();
+    ctx.restore();
+    /* snake */
+    for (var s = snake.length - 1; s >= 0; s--) {
+      var seg = snake[s], t = s / Math.max(1, snake.length);
+      ctx.save();
+      ctx.shadowColor = 'rgba(34,229,200,.9)'; ctx.shadowBlur = s === 0 ? 24 : 10;
+      ctx.fillStyle = s === 0 ? '#9dfff0' : 'hsl(' + (168 + t * 46) + ',82%,' + (62 - t * 22) + '%)';
+      rr(seg.x * CELL + 2, seg.y * CELL + 2, CELL - 4, CELL - 4, 6); ctx.fill();
+      ctx.restore();
+      if (s === 0) { /* eyes */
+        ctx.fillStyle = '#05050b';
+        var ex = seg.x * CELL + CELL / 2 + dir.x * 4, ey = seg.y * CELL + CELL / 2 + dir.y * 4;
+        var ox = dir.x ? 0 : 4, oy = dir.y ? 0 : 4;
+        ctx.beginPath(); ctx.arc(ex - ox, ey - oy, 2.1, 0, 7); ctx.fill();
+        ctx.beginPath(); ctx.arc(ex + ox, ey + oy, 2.1, 0, 7); ctx.fill();
+      }
+    }
+    if (paused && alive) {
+      ctx.fillStyle = 'rgba(5,5,11,.72)'; ctx.fillRect(0, 0, W, H);
+      ctx.fillStyle = '#eef0ff'; ctx.font = '700 26px Segoe UI,sans-serif'; ctx.textAlign = 'center';
+      ctx.fillText('PAUSED', W / 2, H / 2);
+    }
+  }
+
+  function loop(now) {
+    var dt = now - last; last = now;
+    if (alive && !paused) {
+      acc += dt;
+      while (acc >= tick) { acc -= tick; step(); if (!alive) break; }
+    }
+    draw();
+    requestAnimationFrame(loop);
+  }
+
+  var MAP = { ArrowUp: 'u', ArrowDown: 'd', ArrowLeft: 'l', ArrowRight: 'r', w: 'u', s: 'd', a: 'l', d: 'r', W: 'u', S: 'd', A: 'l', D: 'r' };
+  var VEC = { u: { x: 0, y: -1 }, d: { x: 0, y: 1 }, l: { x: -1, y: 0 }, r: { x: 1, y: 0 } };
+  function push(code) { if (queue.length < 3) queue.push(VEC[code]); }
+
+  document.addEventListener('keydown', function (e) {
+    if (MAP[e.key]) { e.preventDefault(); push(MAP[e.key]); }
+    if (e.key === ' ') { e.preventDefault(); if (alive) paused = !paused; }
+    if (e.key === 'Enter' && !alive) reset();
+  });
+  document.querySelectorAll('.dpad button').forEach(function (b) {
+    b.addEventListener('click', function () { push(b.dataset.d); });
+  });
+  /* swipe */
+  var sx = 0, sy = 0;
+  cv.addEventListener('touchstart', function (e) { sx = e.touches[0].clientX; sy = e.touches[0].clientY; }, { passive: true });
+  cv.addEventListener('touchend', function (e) {
+    var dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy;
+    if (Math.abs(dx) + Math.abs(dy) < 24) return;
+    push(Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'r' : 'l') : (dy > 0 ? 'd' : 'u'));
+  }, { passive: true });
+
+  $('go').addEventListener('click', reset);
+  $('pause').addEventListener('click', function () { if (alive) paused = !paused; });
+  $('wallBtn').addEventListener('click', function () {
+    wrap = !wrap;
+    $('wallBtn').textContent = 'Walls: ' + (wrap ? 'portal' : 'solid');
+  });
+
+  reset();
+  requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
