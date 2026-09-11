@@ -65,3 +65,34 @@ source for each is right here in its folder, which satisfies that.
 
 Everything else in the pack — the launcher, the shared styles, the 16
 games in games/ — you may use however you like.
+
+
+==========================================================
+  THE GAME SITE IN site/
+==========================================================
+
+site/ is a copy of the public "unblocked games" archive published at
+ubg98.github.io, plus 15 of the game folders its pages embed, each taken
+from the public repository that serves it.
+
+These are commercial games (Slope, Run 3, Vex 3, Cubefield, Idle
+Breakout, World's Hardest Game and others) redistributed by that archive
+without permission from the studios that made them. That was already the
+case upstream; copying it here does not change it. Play it offline;
+don't republish or sell it.
+
+Changes made so the copy works with no internet:
+
+  - iframes pointing at https://ubg98.github.io/<Game>/ now point at the
+    local folder site/g/<Game>/index.html
+  - root-absolute links (href="/page.html") made relative, so the site
+    works from any folder rather than only from a domain root
+  - pages for the ~166 games not bundled were removed, and the home page
+    grid regenerated to list exactly the 15 that are here
+  - navigation rebuilt (its category pages no longer exist)
+  - unused thumbnails deleted: 203 images down to 15
+  - every page gained a notice that appears only when opened as a file,
+    explaining why the launcher is needed
+
+The launcher (serve.py) and the START- scripts were written for this
+pack and are yours to do anything with.

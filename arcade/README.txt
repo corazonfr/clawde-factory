@@ -1,67 +1,90 @@
 ==========================================================
   NEON ARCADE
-  23 games. Every one of them a file in this folder.
+  Two things in one folder, and they start differently.
 ==========================================================
 
-HOW TO PLAY
------------
-1. Unzip this folder anywhere.
-2. Double-click  index.html
-3. Click a game. It plays immediately.
+  1. 23 games that run by DOUBLE-CLICK        -> open index.html
+  2. A full unblocked-games SITE (15 big      -> run START-Windows.bat
+     games: Slope, Run 3, Vex 3, Cubefield,      or START-Mac-Linux.command
+     Idle Breakout, World's Hardest Game...)
 
-No install, no server, no account, no internet. Not one game here makes
-a single network request — that was tested, not assumed.
-
-
-WHAT'S INSIDE
--------------
-index.html ........ the arcade — all 23 games, searchable
-classics/ ......... 7 real open-source games, bundled with their licences
-games/ ............ 16 games written for this pack
-sites.html ........ a bonus directory of 52 online game sites (needs wifi)
-CREDITS.txt ....... who made the bundled games, and what was changed
+Both work with no internet. They just start differently, and the reason
+is worth thirty seconds of your time:
 
 
-THE 7 ORIGINALS (in classics/)
-------------------------------
-  Hextris ............ Tetris on a spinning hexagon. Genuinely great, and
-                       its official site is offline now — this copy works.
-  2048 ............... the real one by Gabriele Cirulli, not a clone
-  T-Rex Runner ....... Chrome's offline dinosaur, playable on demand
-  Tetris ............. Jake Gordon's flawless canvas version
-  Pseudo-3D Racer .... a full OutRun-style racer at 60fps
-  Pong ............... the 1972 original, done properly
-  A Dark Room ........ starts as one button in an empty room. Give it time.
+WHY THE SITE NEEDS A LAUNCHER
+-----------------------------
+Big HTML5 games don't keep their artwork inside the page. They fetch it
+at runtime -- sprite sheets, level data, sound banks -- through the same
+mechanism a web page uses to call a server.
 
-Each sits in its own folder and can be opened directly if you'd rather
-skip the launcher — for example classics/hextris/index.html.
+Every browser blocks that when a page is opened as a file (a file:// URL).
+It's a security rule, it can't be configured away, and it's why these
+games show a black screen if you just double-click them. It is not a
+problem with the download.
 
+So the folder ships a launcher: a short Python script that serves this
+folder to your own machine and opens it. It binds to 127.0.0.1, which
+means only this computer can reach it. Nothing is uploaded, nothing is
+downloaded, no account, no config.
 
-THE 16 IN games/
-----------------
-snake · tetra blocks · 2048 neon · brick blaster · flap dash ·
-minesweeper · pong duel · space invaders · memory match · sky jumper ·
-asteroids · tic tac toe · connect four · reflex grid · dash runner · simon
+  Windows ....... double-click START-Windows.bat
+  Mac / Linux ... double-click START-Mac-Linux.command
+                  (Mac may ask once: right-click > Open)
 
-Also openable on their own, e.g. games/snake.html.
+A black window appears and your browser opens the arcade. Leave the
+window open while playing; close it when you're done.
 
-
-CONTROLS
---------
-Each game shows its own controls. Broadly:
-  arrows / WASD ... move        Space ... jump, fire, drop, start
-  P ............... pause       Enter ... restart
-Touch controls appear automatically on phones and tablets.
+No Python? Windows: python.org, tick "Add to PATH" during install.
+Mac: run  xcode-select --install  in Terminal. Linux: your package
+manager. Or just use the 23 double-click games, which need none of this.
 
 
-NOTES
------
-- High scores and pins are saved in your browser's local storage. They
-  stay on this machine and are never uploaded.
-- Keep the folder together. index.html needs assets/, games/ and
-  classics/ beside it — unzip the whole thing, don't drag one file out.
-- Sound starts after your first click; browsers block audio until then.
-- A Dark Room is silent when run from a file. Browsers forbid the kind
-  of audio loading it uses on file:// URLs. The game is unaffected.
-- Chrome, Edge and Firefox save scores from file:// fine. Safari is
-  stricter and may not persist them; the games still play.
+WHAT'S IN THE FOLDER
+--------------------
+index.html ............ the arcade: all 23 double-click games
+site/ ................. the unblocked-games site + its 15 games
+  site/index.html ..... the site's own home page
+  site/g/ ............. the game folders themselves
+classics/ ............. 7 open-source originals (double-click works)
+games/ ................ 16 games written for this pack
+sites.html ............ directory of 52 online game sites (needs wifi)
+serve.py .............. the launcher
+START-*.bat/.command .. one-click wrappers around it
+CREDITS.txt ........... who made what, and every change made
+
+
+THE 15 IN THE SITE
+------------------
+Slope · Run 3 · Vex 3 · Cubefield · World's Hardest Game · Idle Breakout
+Doodle Jump · Drift Boss · Eggy Car · Tiny Fishing · Basket Random
+Hanger · Big Tower Tiny Square · Icy Purple Head 2 · Apple Shooter
+
+All fifteen were tested with the network switched off completely. All
+fifteen played. Three others were downloaded and dropped because they
+did not.
+
+
+THE 23 THAT NEED NOTHING
+------------------------
+classics/  Hextris · 2048 · T-Rex Runner · Tetris · Pseudo-3D Racer
+           Pong · A Dark Room
+games/     snake · tetra blocks · 2048 neon · brick blaster · flap dash
+           minesweeper · pong duel · space invaders · memory match
+           sky jumper · asteroids · tic tac toe · connect four
+           reflex grid · dash runner · simon
+
+Every one of these opens straight from the file. No launcher needed.
+
+
+ABOUT THE SITE CONTENT
+----------------------
+site/ is a copy of a public "unblocked games" archive (ubg98) and the
+game folders it points at, taken from the public repositories that host
+them. Those games are commercial titles that the archive redistributes
+without a licence from their makers -- that was true of the site before
+this copy and is true of the copy. It is fine for you to play offline;
+it is not something to republish or sell.
+
+The material in classics/ is the opposite: properly open-source, with
+each project's licence included. CREDITS.txt has the details.
