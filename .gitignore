@@ -1,3 +1,3 @@
-# Built zips are redundant with the files themselves.
-neon-arcade.zip
-neon-arcade-chromebook.zip
+# Built zips are redundant with the files themselves — use GitHub's
+# "Download ZIP" button, or rebuild them from arcade/.
+neon-arcade*.zip
