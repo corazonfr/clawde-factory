@@ -7,6 +7,11 @@
 window.GAMES = [
 
 /* ---------------- bundled open-source originals ---------------- */
+{ id:'c_whg', file:'classics/worldshardest/index.html', title:"World's Hardest Game", emoji:'🟥', cat:'Puzzle',
+  origin:'original', by:'Snubby Land', lic:'redistributed archive copy', tags:['Original','Rage','Real unblocked game'],
+  blurb:'The genuine article from the unblocked-games archives — and the only one of 40 tested that runs from a plain file. No server needed.',
+  c1:'#a5a5f5', c2:'#1a1a4a' },
+
 { id:'c_hextris', file:'classics/hextris/index.html', title:'Hextris', emoji:'🔷', cat:'Puzzle',
   origin:'original', by:'Garrett Finucane & contributors', lic:'GPL-3.0', tags:['Original','Addictive'],
   blurb:'Tetris on a spinning hexagon. Its own website is dead now — this copy still plays perfectly.',

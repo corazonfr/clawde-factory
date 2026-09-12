@@ -1,0 +1,69 @@
+=========================================================================
+  PROMPT FOR A LOCAL CLAUDE CODE SESSION
+  Copy everything between the ==== lines and paste it as your first
+  message to Claude Code running on your own computer.
+=========================================================================
+
+Why this exists: the session that built this pack runs on a server in the
+cloud. It can't reach your machine, so it can't install anything, open a
+browser, or start a server for you. A Claude running locally can.
+
+You only need this if you want the 15-game site (Slope, Run 3, Vex 3,
+Cubefield, Idle Breakout...). The games in games/ and classics/ already
+work by opening index.html -- no Claude, no setup, no server.
+
+=========================================================================
+
+I have a folder called `arcade` (unzipped from neon-arcade.zip). It
+contains an offline games pack. I want to play the game site inside it.
+
+Here's what's in it:
+
+  index.html    a hub listing 23 games that each run straight from the
+                file. These already work -- don't change them.
+  games/        16 games written for the pack
+  classics/     7 open-source games (Hextris, 2048, T-Rex Runner,
+                Tetris, a pseudo-3D racer, Pong, A Dark Room)
+  site/         a copy of the ubg98 unblocked-games site
+  site/g/       the 15 games it embeds -- IF they were downloaded
+  serve.py      a small Python server that serves the folder on
+                http://127.0.0.1:8099 and opens a browser
+  get-games.py  downloads the 15 games into site/g/ if they're missing
+
+What I need from you:
+
+1. Check whether `site/g/` has the 15 game folders. If it's empty or
+   missing, run `python3 get-games.py` (or `py -3 get-games.py` on
+   Windows) to fetch them. It's about 210 MB and takes a few minutes.
+   If Python isn't installed, tell me how to install it for my OS
+   before doing anything else.
+
+2. Start the server with `python3 serve.py` and open
+   http://127.0.0.1:8099/site/index.html in my browser.
+
+3. Confirm a game actually plays -- open Slope or Run 3 and check the
+   browser console for errors rather than assuming it worked.
+
+Important context so you don't go down the wrong path:
+
+  - The site's games CANNOT run from a file:// URL. They load their
+    sprite sheets and level data through XHR/fetch, which every browser
+    blocks on file:// pages. This was tested. Do not try to "fix" it by
+    rewriting paths -- serving over http://127.0.0.1 is the fix, and
+    serve.py already does it.
+  - Everything in the pack is already offline. Nothing should call out
+    to the internet except get-games.py on its first run.
+  - Don't modify anything in games/ or classics/ -- those are verified
+    working and were tested with zero console errors.
+
+If something fails, tell me the actual error rather than guessing, and
+show me what you ran.
+
+=========================================================================
+
+TIP: if you'd rather not install Python at all, and the folder is in a
+git repo you own on GitHub, there's a second route that needs no local
+software: turn on GitHub Pages for the branch, and the site becomes a
+normal website playable from any device, including a Chromebook. Ask
+your local Claude about that instead -- but note it makes those games
+publicly reachable under your GitHub account.
