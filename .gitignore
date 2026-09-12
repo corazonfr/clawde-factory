@@ -1,4 +1,3 @@
-# The bundled game site is ~210 MB of third-party game binaries.
-# It ships in the zip, not in this repo. Rebuild it with arcade/build-site.py
-arcade/site/
+# The built zip is redundant with the files themselves — use GitHub's
+# "Download ZIP" button, or rebuild it from arcade/.
 neon-arcade.zip
