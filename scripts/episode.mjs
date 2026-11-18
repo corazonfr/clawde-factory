@@ -157,7 +157,7 @@ inputs.push(`-f lavfi -t ${duration} -i "anoisesrc=c=brown:a=0.035:r=44100"`);
 chains.push(`[${n}:a]aformat=channel_layouts=stereo,lowpass=f=400,volume=1.0[d${n}]`); n++;
 
 const labels = chains.map((c) => c.match(/\[([a-z]+\d+)\]$/)[1]);
-const filter = [...chains, `${labels.map((l) => `[${l}]`).join("")}amix=inputs=${labels.length}:normalize=0:duration=longest,alimiter=limit=0.9,atrim=0:${duration}[out]`].join(";");
+const filter = [...chains, `${labels.map((l) => `[${l}]`).join("")}amix=inputs=${labels.length}:normalize=0:duration=longest,alimiter=limit=0.9,atrim=0:${duration},loudnorm=I=-14:TP=-1.5:LRA=11[out]`].join(";");
 
 const sh = `#!/usr/bin/env bash
 # Usage: ${ep.slug}.mix.sh <dir with 01.mp3..${config.vo.at(-1).id}.mp3> <out.m4a>
