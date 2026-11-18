@@ -1,0 +1,59 @@
+name: second knock episode
+
+# Builds one Second Knock episode into an mp4 you can download from the run's
+# artifacts and post by hand. It never posts anything.
+#
+# Needs one secret: ELEVENLABS_API_KEY (for the narration).
+
+on:
+  workflow_dispatch:
+    inputs:
+      episode:
+        description: "Episode script to build"
+        required: true
+        default: "episodes/ep01-the-door.json"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: second-knock-build
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install deps
+        run: npm ci || npm install puppeteer
+
+      - name: Install ffmpeg and fonts
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg fonts-dejavu-core fonts-liberation
+          ffmpeg -version | head -1
+
+      - name: Record narration
+        env:
+          ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
+        run: node scripts/vo.mjs --episode "${{ inputs.episode }}" --out vo/
+
+      - name: Lay out the timeline and mix the audio
+        run: |
+          node scripts/episode.mjs --episode "${{ inputs.episode }}" --durations vo/durations.json --out build/
+          SLUG=$(node -p "require('./${{ inputs.episode }}').slug")
+          echo "SLUG=$SLUG" >> "$GITHUB_ENV"
+          bash "build/$SLUG.mix.sh" vo "build/$SLUG.m4a"
+
+      - name: Render
+        run: node scripts/render.mjs --config "build/$SLUG.config.json" --out out/
+
+      - name: Keep the episode
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.SLUG }}
+          path: |
+            out/*.mp4
+            build/*.config.json

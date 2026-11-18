@@ -1,12 +1,10 @@
 name: clawde daily
 
 on:
-  schedule:
-    # Plain interval. UTC, but interval crons don't care about timezones or DST.
-    # Every 12h (2 posts/day) — recommended starting cadence.
-    - cron: "0 */12 * * *"
-    # Every 5h (4.8 posts/day) — swap to this once you have 15+ scenes.
-    # - cron: "0 */5 * * *"
+  # Paused: the channel is now Second Knock, built by episode.yml and posted by hand.
+  # The 12h cron also ran past PostPeer's 20 posts a month on test clips.
+  # schedule:
+  #   - cron: "0 */12 * * *"
   workflow_dispatch:        # manual run button
 
 jobs:

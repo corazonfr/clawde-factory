@@ -1,0 +1,23 @@
+{
+  "series": "SECOND KNOCK",
+  "episode": 1,
+  "part": 1,
+  "title": "The Door",
+  "slug": "second-knock-ep01",
+  "caption": "your mom said don't open the door. part 1 #horrorstory #scary #animation #pov",
+  "voice": { "voice_id": "BVPhWQykET1TSvfGzrUr", "name": "Jack – Deep Dark Horror Narrator", "model_id": "eleven_v4" },
+  "palette": { "bg": "#07070a", "ink": "#121218", "mid": "#20202a", "fog": "#8a8fa3", "accent": "#d61f2c", "glow": "#cfd8ff", "lamp": "#e9b95a" },
+  "lines": [
+    { "id": "01", "shot": "phone",    "say": "Your mom texts you at nine forty-seven. [pause] Working late. Don't open the door. For anyone.", "text": "Your mom texts you at 9:47. Working late. Don't open the door. For anyone.", "card": "TUESDAY · 9:47 PM", "bubble": "working late. don't open the door for anyone", "bubbleAt": 2.4 },
+    { "id": "02", "shot": "room",     "say": "The house is quiet. You're alone. [pause] Then someone knocks.", "text": "The house is quiet. You're alone. Then someone knocks.", "knocksAfter": 2 },
+    { "id": "03", "shot": "door",     "say": "Two knocks. Slow. [pause] Exactly how she always knocks.", "text": "Two knocks. Slow. Exactly how she always knocks." },
+    { "id": "04", "shot": "door",     "say": "Then her voice. [whispering] Honey, it's me. I forgot my keys.", "text": "Then her voice. |Honey, it's me. I forgot my keys." },
+    { "id": "05", "shot": "phone",    "say": "You check your phone. Mom is typing.", "text": "You check your phone. Mom is typing.", "typing": true },
+    { "id": "06", "shot": "phone",    "say": "[slowly] Who are you talking to?", "text": "|Who are you talking to?", "bubble": "who are you talking to?", "bubbleAt": 0, "sting": true },
+    { "id": "07", "shot": "approach", "say": "You look through the peephole.", "text": "You look through the peephole." },
+    { "id": "08", "shot": "peephole", "say": "It's wearing her coat. But it's too tall. [pause] Its head is bent against the porch ceiling.", "text": "It's wearing her coat. But it's too tall. Its head is bent against the porch ceiling.", "knocksAfter": 2 },
+    { "id": "09", "shot": "peephole", "say": "It knocks again. [pause] A second time.", "text": "It knocks again. A second time.", "card": "9:52 PM" },
+    { "id": "10", "shot": "peephole", "say": "And it says... [whispering] I know you're looking.", "text": "And it says... |I know you're looking.", "scareAt": 1.3 },
+    { "id": "11", "shot": "end",      "say": "Part one. [pause] Do you hide, or do you run out the back door? Comment hide, or run.", "text": "Part one. Do you hide, or run out the back door? Comment HIDE or RUN." }
+  ]
+}
