@@ -17,3 +17,7 @@ node_modules/
 .claude-flow/graph/
 .claude-flow/policy/
 .claude-flow/harness-active-policy.json
+
+# Third-party reference frames for cartoon-3d-short: private style study only, never published
+.claude/skills/cartoon-3d-short/references/frames/
+.claude/skills/cartoon-3d-short/references/sheets/
