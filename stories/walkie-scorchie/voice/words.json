@@ -1,0 +1,1132 @@
+[
+{
+"word": "In",
+"start": 0.02,
+"end": 0.18
+},
+{
+"word": "2013,",
+"start": 0.18,
+"end": 0.95
+},
+{
+"word": "a",
+"start": 1.1,
+"end": 1.22
+},
+{
+"word": "London",
+"start": 1.22,
+"end": 1.46
+},
+{
+"word": "skyscraper",
+"start": 1.46,
+"end": 2.16
+},
+{
+"word": "melted",
+"start": 2.16,
+"end": 2.48
+},
+{
+"word": "a",
+"start": 2.48,
+"end": 2.68
+},
+{
+"word": "car.",
+"start": 2.68,
+"end": 3.02
+},
+{
+"word": "Without",
+"start": 3.19,
+"end": 3.4
+},
+{
+"word": "touching",
+"start": 3.4,
+"end": 3.72
+},
+{
+"word": "it,",
+"start": 3.72,
+"end": 3.96
+},
+{
+"word": "London,",
+"start": 4.14,
+"end": 4.62
+},
+{
+"word": "the",
+"start": 4.78,
+"end": 4.9
+},
+{
+"word": "city's",
+"start": 4.9,
+"end": 5.24
+},
+{
+"word": "shiny",
+"start": 5.24,
+"end": 5.48
+},
+{
+"word": "new",
+"start": 5.48,
+"end": 5.76
+},
+{
+"word": "skyscraper,",
+"start": 5.76,
+"end": 6.52
+},
+{
+"word": "37",
+"start": 6.76,
+"end": 7.2
+},
+{
+"word": "floors,",
+"start": 7.2,
+"end": 7.77
+},
+{
+"word": "nicknamed",
+"start": 8.07,
+"end": 8.4
+},
+{
+"word": "the",
+"start": 8.4,
+"end": 8.72
+},
+{
+"word": "Walkie",
+"start": 8.72,
+"end": 9.04
+},
+{
+"word": "Talkie.",
+"start": 9.04,
+"end": 9.47
+},
+{
+"word": "One",
+"start": 9.82,
+"end": 10.2
+},
+{
+"word": "sunny",
+"start": 10.2,
+"end": 10.44
+},
+{
+"word": "afternoon,",
+"start": 10.44,
+"end": 11.05
+},
+{
+"word": "a",
+"start": 11.18,
+"end": 11.28
+},
+{
+"word": "man",
+"start": 11.28,
+"end": 11.48
+},
+{
+"word": "parked",
+"start": 11.48,
+"end": 11.8
+},
+{
+"word": "his",
+"start": 11.8,
+"end": 12.0
+},
+{
+"word": "Jaguar",
+"start": 12.0,
+"end": 12.32
+},
+{
+"word": "on",
+"start": 12.32,
+"end": 12.58
+},
+{
+"word": "the",
+"start": 12.58,
+"end": 12.68
+},
+{
+"word": "street",
+"start": 12.68,
+"end": 12.94
+},
+{
+"word": "below.",
+"start": 12.94,
+"end": 13.51
+},
+{
+"word": "An",
+"start": 13.52,
+"end": 13.76
+},
+{
+"word": "hour",
+"start": 13.76,
+"end": 13.9
+},
+{
+"word": "later,",
+"start": 13.9,
+"end": 14.32
+},
+{
+"word": "the",
+"start": 14.32,
+"end": 14.52
+},
+{
+"word": "wing",
+"start": 14.52,
+"end": 14.68
+},
+{
+"word": "mirror",
+"start": 14.68,
+"end": 14.9
+},
+{
+"word": "had",
+"start": 14.9,
+"end": 15.06
+},
+{
+"word": "melted.",
+"start": 15.06,
+"end": 15.52
+},
+{
+"word": "So",
+"start": 15.73,
+"end": 15.92
+},
+{
+"word": "had",
+"start": 15.92,
+"end": 16.06
+},
+{
+"word": "the",
+"start": 16.06,
+"end": 16.2
+},
+{
+"word": "Jaguar",
+"start": 16.2,
+"end": 16.5
+},
+{
+"word": "badge.",
+"start": 16.5,
+"end": 16.94
+},
+{
+"word": "A",
+"start": 17.24,
+"end": 17.36
+},
+{
+"word": "shop's",
+"start": 17.36,
+"end": 17.63
+},
+{
+"word": "doormat",
+"start": 17.66,
+"end": 18.0
+},
+{
+"word": "got",
+"start": 18.0,
+"end": 18.18
+},
+{
+"word": "scorched.",
+"start": 18.18,
+"end": 18.75
+},
+{
+"word": "Paving",
+"start": 19.01,
+"end": 19.32
+},
+{
+"word": "tiles",
+"start": 19.32,
+"end": 19.72
+},
+{
+"word": "cracked.",
+"start": 19.72,
+"end": 20.27
+},
+{
+"word": "A",
+"start": 20.61,
+"end": 20.9
+},
+{
+"word": "reporter",
+"start": 20.9,
+"end": 21.18
+},
+{
+"word": "brought",
+"start": 21.18,
+"end": 21.46
+},
+{
+"word": "a",
+"start": 21.46,
+"end": 21.66
+},
+{
+"word": "frying",
+"start": 21.66,
+"end": 21.92
+},
+{
+"word": "pan",
+"start": 21.92,
+"end": 22.2
+},
+{
+"word": "and",
+"start": 22.2,
+"end": 22.44
+},
+{
+"word": "fried",
+"start": 22.44,
+"end": 22.64
+},
+{
+"word": "an",
+"start": 22.64,
+"end": 22.8
+},
+{
+"word": "egg",
+"start": 22.8,
+"end": 23.02
+},
+{
+"word": "on",
+"start": 23.02,
+"end": 23.16
+},
+{
+"word": "the",
+"start": 23.16,
+"end": 23.27
+},
+{
+"word": "pavement.",
+"start": 23.28,
+"end": 23.74
+},
+{
+"word": "Then",
+"start": 23.91,
+"end": 24.06
+},
+{
+"word": "he",
+"start": 24.06,
+"end": 24.18
+},
+{
+"word": "ate",
+"start": 24.18,
+"end": 24.38
+},
+{
+"word": "it.",
+"start": 24.38,
+"end": 24.6
+},
+{
+"word": "For",
+"start": 24.74,
+"end": 24.86
+},
+{
+"word": "lunch,",
+"start": 24.86,
+"end": 25.24
+},
+{
+"word": "the",
+"start": 25.49,
+"end": 25.58
+},
+{
+"word": "street",
+"start": 25.58,
+"end": 25.82
+},
+{
+"word": "was",
+"start": 25.82,
+"end": 26.0
+},
+{
+"word": "hitting",
+"start": 26.0,
+"end": 26.28
+},
+{
+"word": "over",
+"start": 26.28,
+"end": 26.56
+},
+{
+"word": "90",
+"start": 26.56,
+"end": 26.9
+},
+{
+"word": "degrees.",
+"start": 26.9,
+"end": 27.45
+},
+{
+"word": "Celsius,",
+"start": 27.74,
+"end": 28.32
+},
+{
+"word": "the",
+"start": 28.32,
+"end": 28.52
+},
+{
+"word": "newspapers",
+"start": 28.52,
+"end": 28.86
+},
+{
+"word": "renamed",
+"start": 28.86,
+"end": 29.34
+},
+{
+"word": "it",
+"start": 29.34,
+"end": 29.58
+},
+{
+"word": "the",
+"start": 29.58,
+"end": 29.8
+},
+{
+"word": "Walkie",
+"start": 29.8,
+"end": 30.18
+},
+{
+"word": "Scorchy.",
+"start": 30.18,
+"end": 30.67
+},
+{
+"word": "Luckily,",
+"start": 30.98,
+"end": 31.36
+},
+{
+"word": "it",
+"start": 31.36,
+"end": 31.56
+},
+{
+"word": "only",
+"start": 31.56,
+"end": 31.72
+},
+{
+"word": "happens",
+"start": 31.72,
+"end": 32.0
+},
+{
+"word": "when",
+"start": 32.0,
+"end": 32.22
+},
+{
+"word": "the",
+"start": 32.22,
+"end": 32.38
+},
+{
+"word": "sun",
+"start": 32.38,
+"end": 32.54
+},
+{
+"word": "shines",
+"start": 32.54,
+"end": 32.92
+},
+{
+"word": "and",
+"start": 32.92,
+"end": 33.22
+},
+{
+"word": "this",
+"start": 33.22,
+"end": 33.34
+},
+{
+"word": "is",
+"start": 33.34,
+"end": 33.52
+},
+{
+"word": "London.",
+"start": 33.52,
+"end": 33.94
+},
+{
+"word": "Unluckily",
+"start": 34.24,
+"end": 34.68
+},
+{
+"word": "that",
+"start": 34.68,
+"end": 34.88
+},
+{
+"word": "summer",
+"start": 34.88,
+"end": 35.16
+},
+{
+"word": "was",
+"start": 35.16,
+"end": 35.34
+},
+{
+"word": "the",
+"start": 35.34,
+"end": 35.5
+},
+{
+"word": "sunniest",
+"start": 35.5,
+"end": 35.86
+},
+{
+"word": "in",
+"start": 35.86,
+"end": 36.1
+},
+{
+"word": "seven",
+"start": 36.1,
+"end": 36.34
+},
+{
+"word": "years.",
+"start": 36.34,
+"end": 36.97
+},
+{
+"word": "A",
+"start": 36.98,
+"end": 37.18
+},
+{
+"word": "flat",
+"start": 37.18,
+"end": 37.38
+},
+{
+"word": "window",
+"start": 37.38,
+"end": 37.7
+},
+{
+"word": "bounces",
+"start": 37.7,
+"end": 38.1
+},
+{
+"word": "sunlight",
+"start": 38.1,
+"end": 38.5
+},
+{
+"word": "straight",
+"start": 38.5,
+"end": 38.84
+},
+{
+"word": "back,",
+"start": 38.84,
+"end": 39.24
+},
+{
+"word": "but",
+"start": 39.35,
+"end": 39.44
+},
+{
+"word": "this",
+"start": 39.44,
+"end": 39.6
+},
+{
+"word": "whole",
+"start": 39.6,
+"end": 39.82
+},
+{
+"word": "front",
+"start": 39.82,
+"end": 40.16
+},
+{
+"word": "curves",
+"start": 40.16,
+"end": 40.62
+},
+{
+"word": "inward",
+"start": 40.62,
+"end": 40.94
+},
+{
+"word": "like",
+"start": 40.94,
+"end": 41.26
+},
+{
+"word": "the",
+"start": 41.26,
+"end": 41.38
+},
+{
+"word": "inside",
+"start": 41.38,
+"end": 41.72
+},
+{
+"word": "of",
+"start": 41.72,
+"end": 41.84
+},
+{
+"word": "a",
+"start": 41.84,
+"end": 41.98
+},
+{
+"word": "spoon,",
+"start": 41.98,
+"end": 42.38
+},
+{
+"word": "and",
+"start": 42.53,
+"end": 42.72
+},
+{
+"word": "a",
+"start": 42.72,
+"end": 42.88
+},
+{
+"word": "curve",
+"start": 42.88,
+"end": 43.08
+},
+{
+"word": "like",
+"start": 43.08,
+"end": 43.3
+},
+{
+"word": "that",
+"start": 43.3,
+"end": 43.64
+},
+{
+"word": "sends",
+"start": 43.64,
+"end": 43.96
+},
+{
+"word": "all",
+"start": 43.96,
+"end": 44.24
+},
+{
+"word": "the",
+"start": 44.24,
+"end": 44.4
+},
+{
+"word": "sunlight",
+"start": 44.4,
+"end": 44.7
+},
+{
+"word": "it",
+"start": 44.7,
+"end": 44.87
+},
+{
+"word": "catches",
+"start": 44.9,
+"end": 45.14
+},
+{
+"word": "to",
+"start": 45.14,
+"end": 45.4
+},
+{
+"word": "one",
+"start": 45.4,
+"end": 45.56
+},
+{
+"word": "spot,",
+"start": 45.56,
+"end": 46.01
+},
+{
+"word": "up",
+"start": 46.15,
+"end": 46.28
+},
+{
+"word": "to",
+"start": 46.28,
+"end": 46.46
+},
+{
+"word": "six",
+"start": 46.46,
+"end": 46.66
+},
+{
+"word": "times",
+"start": 46.66,
+"end": 47.0
+},
+{
+"word": "brighter",
+"start": 47.0,
+"end": 47.26
+},
+{
+"word": "than",
+"start": 47.26,
+"end": 47.52
+},
+{
+"word": "the",
+"start": 47.52,
+"end": 47.66
+},
+{
+"word": "sun.",
+"start": 47.66,
+"end": 48.01
+},
+{
+"word": "The",
+"start": 48.24,
+"end": 48.32
+},
+{
+"word": "developers",
+"start": 48.32,
+"end": 48.62
+},
+{
+"word": "paid",
+"start": 48.62,
+"end": 49.0
+},
+{
+"word": "946",
+"start": 49.0,
+"end": 50.12
+},
+{
+"word": "pounds",
+"start": 50.12,
+"end": 50.48
+},
+{
+"word": "to",
+"start": 50.48,
+"end": 50.74
+},
+{
+"word": "fix",
+"start": 50.74,
+"end": 50.92
+},
+{
+"word": "the",
+"start": 50.92,
+"end": 51.1
+},
+{
+"word": "car,",
+"start": 51.1,
+"end": 51.36
+},
+{
+"word": "then",
+"start": 51.36,
+"end": 51.7
+},
+{
+"word": "they",
+"start": 51.7,
+"end": 51.86
+},
+{
+"word": "bolted",
+"start": 51.86,
+"end": 52.14
+},
+{
+"word": "giant",
+"start": 52.14,
+"end": 52.52
+},
+{
+"word": "metal",
+"start": 52.52,
+"end": 52.9
+},
+{
+"word": "sunshades",
+"start": 52.9,
+"end": 53.42
+},
+{
+"word": "across",
+"start": 53.42,
+"end": 53.64
+},
+{
+"word": "the",
+"start": 53.64,
+"end": 53.86
+},
+{
+"word": "whole",
+"start": 53.86,
+"end": 54.04
+},
+{
+"word": "front.",
+"start": 54.04,
+"end": 54.49
+},
+{
+"word": "The",
+"start": 54.75,
+"end": 54.84
+},
+{
+"word": "original",
+"start": 54.84,
+"end": 55.14
+},
+{
+"word": "design",
+"start": 55.14,
+"end": 55.54
+},
+{
+"word": "had",
+"start": 55.54,
+"end": 55.74
+},
+{
+"word": "sunshades,",
+"start": 55.74,
+"end": 56.43
+},
+{
+"word": "they",
+"start": 56.67,
+"end": 56.76
+},
+{
+"word": "were",
+"start": 56.76,
+"end": 56.86
+},
+{
+"word": "cut,",
+"start": 56.86,
+"end": 57.2
+},
+{
+"word": "to",
+"start": 57.2,
+"end": 57.4
+},
+{
+"word": "save",
+"start": 57.4,
+"end": 57.6
+},
+{
+"word": "money.",
+"start": 57.6,
+"end": 57.92
+},
+{
+"word": "The",
+"start": 57.92,
+"end": 58.12
+},
+{
+"word": "architect",
+"start": 58.12,
+"end": 58.44
+},
+{
+"word": "said",
+"start": 58.44,
+"end": 58.74
+},
+{
+"word": "he",
+"start": 58.74,
+"end": 58.9
+},
+{
+"word": "knew",
+"start": 58.9,
+"end": 59.04
+},
+{
+"word": "it",
+"start": 59.04,
+"end": 59.16
+},
+{
+"word": "would",
+"start": 59.16,
+"end": 59.26
+},
+{
+"word": "reflect,",
+"start": 59.26,
+"end": 59.79
+},
+{
+"word": "he",
+"start": 59.94,
+"end": 60.18
+},
+{
+"word": "just",
+"start": 60.18,
+"end": 60.32
+},
+{
+"word": "didn't",
+"start": 60.32,
+"end": 60.62
+},
+{
+"word": "realize",
+"start": 60.62,
+"end": 60.9
+},
+{
+"word": "it",
+"start": 60.9,
+"end": 61.06
+},
+{
+"word": "would",
+"start": 61.06,
+"end": 61.16
+},
+{
+"word": "be",
+"start": 61.16,
+"end": 61.3
+},
+{
+"word": "so",
+"start": 61.3,
+"end": 61.48
+},
+{
+"word": "hot.",
+"start": 61.48,
+"end": 61.87
+},
+{
+"word": "Odd",
+"start": 62.37,
+"end": 62.54
+},
+{
+"word": "because",
+"start": 62.54,
+"end": 62.8
+},
+{
+"word": "three",
+"start": 62.8,
+"end": 63.06
+},
+{
+"word": "years",
+"start": 63.06,
+"end": 63.26
+},
+{
+"word": "earlier,",
+"start": 63.26,
+"end": 63.64
+},
+{
+"word": "his",
+"start": 63.64,
+"end": 63.88
+},
+{
+"word": "hotel",
+"start": 63.88,
+"end": 64.14
+},
+{
+"word": "in",
+"start": 64.14,
+"end": 64.32
+},
+{
+"word": "Las",
+"start": 64.32,
+"end": 64.46
+},
+{
+"word": "Vegas",
+"start": 64.46,
+"end": 64.78
+},
+{
+"word": "was",
+"start": 64.78,
+"end": 65.0
+},
+{
+"word": "accused",
+"start": 65.0,
+"end": 65.3
+},
+{
+"word": "of",
+"start": 65.3,
+"end": 65.52
+},
+{
+"word": "scorching",
+"start": 65.52,
+"end": 65.92
+},
+{
+"word": "sunbathers",
+"start": 65.92,
+"end": 66.54
+},
+{
+"word": "by",
+"start": 66.54,
+"end": 66.68
+},
+{
+"word": "its",
+"start": 66.68,
+"end": 66.84
+},
+{
+"word": "pool,",
+"start": 66.84,
+"end": 67.22
+},
+{
+"word": "so",
+"start": 67.22,
+"end": 67.5
+},
+{
+"word": "it",
+"start": 67.5,
+"end": 67.6
+},
+{
+"word": "wasn't",
+"start": 67.6,
+"end": 67.84
+},
+{
+"word": "a",
+"start": 67.84,
+"end": 67.92
+},
+{
+"word": "mistake,",
+"start": 67.92,
+"end": 68.32
+},
+{
+"word": "it",
+"start": 68.34,
+"end": 68.56
+},
+{
+"word": "was",
+"start": 68.56,
+"end": 68.66
+},
+{
+"word": "a",
+"start": 68.66,
+"end": 68.78
+},
+{
+"word": "sequel.",
+"start": 68.78,
+"end": 69.2
+}
+]
