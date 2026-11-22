@@ -30,3 +30,6 @@ stories/*/audio/stem_*.wav
 
 # Python bytecode
 __pycache__/
+
+# Remotion test stills and scratch renders
+studio/out/
