@@ -19,7 +19,6 @@ log() { echo "$(date +%T) $*"; }
 publish() { # commit the given paths and push, retrying network errors
   ( cd "$REPO" && git add "$@" && git commit -q -m "$MSG
 
-Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
 Claude-Session: https://claude.ai/code/session_011dsjjmbbC1MVh32i9zZgBS" ) || { log "nothing to commit"; return 0; }
   for d in 2 4 8 16 32; do
     ( cd "$REPO" && git push -q origin "$BRANCH" ) && { log "pushed"; return 0; }
