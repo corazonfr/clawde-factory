@@ -24,7 +24,7 @@ node_modules/
 
 # Story working files
 stories/*/voice/raw.wav
-stories/*/audio/*.wav
+stories/*/audio/stem_*.wav
 
 # Python bytecode
 __pycache__/
