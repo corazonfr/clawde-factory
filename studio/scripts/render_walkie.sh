@@ -2,7 +2,7 @@
 # Final render of "The Skyscraper That Melted a Car" on a local GPU (ANGLE), 2K vertical (1440x2560):
 #   1. render WalkieShort in 300-frame chunks, skipping chunks already done (restartable), checking every frame count
 #   2. join the chunks, add the final mix (audio/mix.wav; Remotion writes a silent track, so map 0:v + 1:a),
-#      re-encode at crf 19 (keeps the file under GitHub's 100 MB) and check both durations
+#      re-stamp frames sequentially (the concat demuxer drops frames at chunk seams otherwise), re-encode at crf 19 (keeps the file under GitHub's 100 MB) and check both durations
 # Chunks stay local (not committed). Bundles go to D:/remotion-tmp so the system drive does not fill.
 set -u
 cd "$(dirname "$0")/.."
@@ -36,7 +36,7 @@ log "joining chunks"
 ls "$CH"/c_*.mp4 | sort | sed "s/^/file '/; s/$/'/" > "$CH/list.txt"
 OUT="$STORY/walkie-scorchie.mp4"
 ffmpeg -hide_banner -loglevel error -y -f concat -safe 0 -i "$CH/list.txt" -i "$STORY/audio/mix.wav" \
-  -map 0:v:0 -map 1:a:0 -c:v libx264 -crf 19 -preset slow -pix_fmt yuv420p -c:a aac -b:a 320k -t 70.5 -movflags +faststart "$OUT"
+  -map 0:v:0 -map 1:a:0 -vf "setpts=N/(30*TB)" -r 30 -c:v libx264 -crf 19 -preset slow -pix_fmt yuv420p -c:a aac -b:a 320k -t 70.5 -movflags +faststart "$OUT"
 vf=$(frames "$OUT")
 ad=$(ffprobe -v error -select_streams a:0 -show_entries stream=duration -of default=nw=1:nk=1 "$OUT")
 log "final: $vf video frames (want $TOTAL), audio ${ad}s (want 70.5), $(du -h "$OUT" | cut -f1)"
