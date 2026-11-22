@@ -51,7 +51,7 @@ log "joining chunks"
 ls "$CH"/c_*.mp4 | sort | sed "s/^/file '/; s/$/'/" > "$CH/list.txt"
 OUT="$STORY/tower-saved-by-a-war.mp4"
 ffmpeg -hide_banner -loglevel error -y -f concat -safe 0 -i "$CH/list.txt" -i "$STORY/audio/mix.wav" \
-  -map 0:v:0 -map 1:a:0 -c:v copy -c:a aac -b:a 320k -movflags +faststart "$OUT"
+  -map 0:v:0 -map 1:a:0 -c:v libx264 -crf 19 -preset slow -pix_fmt yuv420p -c:a aac -b:a 320k -t 70.6 -movflags +faststart "$OUT" # re-encode: a stream copy of the crf-16 chunks is over GitHub's 100 MB limit
 vf=$(frames "$OUT")
 ad=$(ffprobe -v error -select_streams a:0 -show_entries stream=duration -of default=nw=1:nk=1 "$OUT")
 log "final: $vf video frames (want $TOTAL), audio ${ad}s (want 70.6)"
