@@ -17,6 +17,8 @@ node_modules/
 .claude-flow/graph/
 .claude-flow/policy/
 .claude-flow/harness-active-policy.json
+.claude-flow/mods/session.json
+.claude-flow/protector-mod/
 
 # Third-party reference frames for cartoon-3d-short: private style study only, never published
 .claude/skills/cartoon-3d-short/references/frames/
