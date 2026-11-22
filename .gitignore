@@ -10,3 +10,10 @@
 .swarm/
 .claude/settings.json.bak-*
 node_modules/
+
+# Ruflo per-machine runtime state
+.claude-flow/agents/
+.claude-flow/tasks/
+.claude-flow/graph/
+.claude-flow/policy/
+.claude-flow/harness-active-policy.json

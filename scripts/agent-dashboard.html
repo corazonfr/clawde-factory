@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agent Dashboard</title>
+<style>
+  :root {
+    --bg: #f6f5f1; --panel: #ffffff; --ink: #1d1c1a; --muted: #6b6862; --line: #e4e1da;
+    --working: #1f8a4c; --thinking: #6a4bd8; --waiting: #c27a00; --idle: #8d8a84; --stopped: #b3362c;
+    --chip: #efede7; --think-bg: #f3f0fb; --code: #f2f1ed;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #151513; --panel: #1f1e1c; --ink: #ecebe7; --muted: #9c9992; --line: #33312e;
+      --working: #46c37b; --thinking: #a28cf5; --waiting: #e7a83a; --idle: #77746e; --stopped: #e2685c;
+      --chip: #2a2926; --think-bg: #252134; --code: #262522;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+         font: 14px/1.45 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; }
+  header { position: sticky; top: 0; z-index: 2; background: var(--bg); border-bottom: 1px solid var(--line);
+           padding: 14px 20px; display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; }
+  h1 { font-size: 17px; margin: 0; font-weight: 650; }
+  .counts { display: flex; gap: 8px; flex-wrap: wrap; }
+  .count { background: var(--chip); border-radius: 999px; padding: 3px 10px; font-size: 12.5px; }
+  .count b { font-variant-numeric: tabular-nums; }
+  .meta { margin-left: auto; color: var(--muted); font-size: 12.5px; display: flex; gap: 12px; align-items: center; }
+  .live { display: inline-flex; gap: 6px; align-items: center; }
+  .live i { width: 8px; height: 8px; border-radius: 50%; background: var(--idle); }
+  .live.on i { background: var(--working); animation: pulse 1.6s infinite; }
+  .filters { display: flex; gap: 6px; }
+  .filters button { border: 1px solid var(--line); background: var(--panel); color: var(--ink);
+                    border-radius: 8px; padding: 4px 10px; font: inherit; font-size: 12.5px; cursor: pointer; }
+  .filters button[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  main { padding: 18px 20px 40px; display: grid; gap: 14px;
+         grid-template-columns: repeat(auto-fill, minmax(min(100%, 420px), 1fr)); }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px;
+          display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+  .card.working, .card.thinking { border-color: color-mix(in srgb, var(--working) 45%, var(--line)); }
+  .top { display: flex; gap: 10px; align-items: flex-start; }
+  .dot { flex: none; width: 10px; height: 10px; border-radius: 50%; margin-top: 6px; background: var(--idle); }
+  .working .dot { background: var(--working); animation: pulse 1.4s infinite; }
+  .thinking .dot { background: var(--thinking); animation: pulse 1.4s infinite; }
+  .waiting .dot { background: var(--waiting); }
+  .stopped .dot { background: var(--stopped); }
+  .who { min-width: 0; flex: 1; }
+  .name { font-weight: 650; display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+  .kind { font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted);
+          background: var(--chip); border-radius: 5px; padding: 1px 6px; font-weight: 600; }
+  .title { color: var(--muted); font-size: 13px; overflow-wrap: anywhere; }
+  .status { font-size: 12px; font-weight: 600; text-transform: capitalize; white-space: nowrap; }
+  .working .status { color: var(--working); } .thinking .status { color: var(--thinking); }
+  .waiting .status { color: var(--waiting); } .idle .status { color: var(--idle); } .stopped .status { color: var(--stopped); }
+  .label { font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); font-weight: 650; margin-bottom: 3px; }
+  .doing { font: 12.5px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; background: var(--code);
+           border-radius: 8px; padding: 8px 10px; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .think { background: var(--think-bg); border-radius: 8px; padding: 8px 10px; white-space: pre-wrap;
+           overflow-wrap: anywhere; max-height: 220px; overflow: auto; }
+  .think.none { color: var(--muted); font-style: italic; }
+  .src { font-weight: 500; text-transform: none; letter-spacing: 0; }
+  .facts { display: flex; flex-wrap: wrap; gap: 4px 14px; color: var(--muted); font-size: 12px; }
+  details summary { cursor: pointer; color: var(--muted); font-size: 12.5px; }
+  ol.tl { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 4px; }
+  ol.tl li { display: grid; grid-template-columns: 62px 70px 1fr; gap: 8px; font-size: 12.5px; }
+  ol.tl time { color: var(--muted); font-variant-numeric: tabular-nums; }
+  ol.tl .k { font-weight: 600; font-size: 11.5px; }
+  ol.tl .tx { overflow-wrap: anywhere; }
+  .k.tool { color: var(--working); } .k.thinking { color: var(--thinking); } .k.error { color: var(--stopped); }
+  .k.prompt { color: var(--waiting); } .k.say, .k.result { color: var(--muted); }
+  .empty { grid-column: 1 / -1; text-align: center; color: var(--muted); padding: 60px 20px; }
+  .empty code { background: var(--code); padding: 2px 6px; border-radius: 5px; }
+  @keyframes pulse { 50% { opacity: .35; } }
+  @media (max-width: 600px) {
+    header, main { padding-left: 16px; padding-right: 16px; }
+    .meta { margin-left: 0; width: 100%; }
+    ol.tl li { grid-template-columns: 54px 1fr; } ol.tl .k { display: none; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>Agent Dashboard</h1>
+  <div class="counts" id="counts"></div>
+  <div class="filters" id="filters">
+    <button data-f="all" aria-pressed="true">All</button>
+    <button data-f="active" aria-pressed="false">Active</button>
+    <button data-f="claude" aria-pressed="false">Claude</button>
+    <button data-f="ruflo" aria-pressed="false">Ruflo</button>
+  </div>
+  <div class="meta"><span class="live" id="live"><i></i><span>connecting</span></span><span id="updated"></span></div>
+</header>
+<main id="grid"></main>
+<script>
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const ago = (iso) => {
+  if (!iso) return '';
+  const s = Math.max(0, (Date.now() - new Date(iso)) / 1000);
+  if (s < 60) return `${Math.round(s)}s ago`;
+  if (s < 3600) return `${Math.round(s / 60)}m ago`;
+  return `${Math.round(s / 3600)}h ago`;
+};
+const hhmm = (iso) => iso ? new Date(iso).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23' }) : '';
+const KIND = { session: 'Claude session', subagent: 'Subagent', ruflo: 'Ruflo' };
+let filter = 'all', data = null;
+const open = new Set();
+
+function card(a) {
+  const t = a.thinking;
+  const thinkLabel = t ? (t.source === 'reasoning' ? 'Thinking' : 'Thinking <span class="src">· latest message (reasoning text not stored)</span>') : 'Thinking';
+  const thinkBody = t ? `<div class="think">${esc(t.text)}</div>`
+    : `<div class="think none">${esc(a.thinkingNote || 'No reasoning or messages yet.')}</div>`;
+  const facts = [
+    a.model && `model ${esc(a.model)}`,
+    a.branch && `branch ${esc(a.branch)}`,
+    a.stats?.tokensOut && `${a.stats.tokensOut.toLocaleString()} tokens out`,
+    a.stats?.health != null && `health ${Math.round(a.stats.health * 100)}%`,
+    a.stats?.taskCount != null && `${a.stats.taskCount} tasks`,
+    `updated ${ago(a.updatedAt)}`,
+  ].filter(Boolean).map((f) => `<span>${f}</span>`).join('');
+  const tl = (a.timeline || []).map((e) =>
+    `<li><time>${hhmm(e.ts)}</time><span class="k ${esc(e.kind)}">${esc(e.kind)}</span><span class="tx">${esc(e.text)}</span></li>`).join('');
+  return `<article class="card ${esc(a.status)}">
+    <div class="top"><span class="dot"></span>
+      <div class="who"><div class="name">${esc(a.name)} <span class="kind">${KIND[a.kind] || esc(a.kind)}</span></div>
+        <div class="title">${esc(a.title)}</div></div>
+      <span class="status">${esc(a.status)}</span></div>
+    ${a.task ? `<div><div class="label">Task</div><div>${esc(a.task)}</div></div>` : ''}
+    <div><div class="label">Doing</div><div class="doing">${esc(a.doing)}</div></div>
+    <div><div class="label">${thinkLabel}</div>${thinkBody}</div>
+    <div class="facts">${facts}</div>
+    ${tl ? `<details data-id="${esc(a.id)}"${open.has(a.id) ? ' open' : ''}><summary>Recent activity</summary><ol class="tl">${tl}</ol></details>` : ''}
+  </article>`;
+}
+
+function render() {
+  if (!data) return;
+  const all = data.agents;
+  const shown = all.filter((a) =>
+    filter === 'all' ? true :
+    filter === 'active' ? ['working', 'thinking', 'waiting'].includes(a.status) :
+    filter === 'claude' ? a.kind !== 'ruflo' : a.kind === 'ruflo');
+  const n = (s) => all.filter((a) => a.status === s).length;
+  $('#counts').innerHTML = [
+    ['agents', all.length], ['working', n('working') + n('thinking')], ['waiting', n('waiting')], ['idle', n('idle')],
+  ].map(([k, v]) => `<span class="count"><b>${v}</b> ${k}</span>`).join('');
+  $('#updated').textContent = `updated ${hhmm(data.generatedAt)}`;
+  $('#grid').innerHTML = shown.length ? shown.map(card).join('') :
+    `<div class="empty">No agents ${filter === 'all' ? 'yet' : 'match this filter'}.<br><br>
+      Start one with <code>npx ruflo@3.80.0 agent spawn -t coder</code> or open Claude Code in this repo.</div>`;
+}
+
+$('#grid').addEventListener('toggle', (e) => {
+  const id = e.target.dataset?.id; if (!id) return;
+  e.target.open ? open.add(id) : open.delete(id);
+}, true);
+$('#filters').addEventListener('click', (e) => {
+  const b = e.target.closest('button'); if (!b) return;
+  filter = b.dataset.f;
+  for (const x of document.querySelectorAll('#filters button')) x.setAttribute('aria-pressed', String(x === b));
+  render();
+});
+
+function connect() {
+  const es = new EventSource('/events');
+  const live = $('#live');
+  es.onopen = () => { live.classList.add('on'); live.lastChild.textContent = 'live'; };
+  es.onmessage = (m) => { data = JSON.parse(m.data); render(); };
+  es.onerror = () => { live.classList.remove('on'); live.lastChild.textContent = 'reconnecting'; };
+}
+connect();
+setInterval(render, 10000); // keep the "x ago" labels fresh
+</script>
+</body>
+</html>
