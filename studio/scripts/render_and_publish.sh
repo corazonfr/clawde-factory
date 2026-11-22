@@ -13,6 +13,7 @@ CH="$STORY/render/chunks"
 BRANCH=$(git rev-parse --abbrev-ref HEAD)
 TOTAL=2118; STEP=300
 mkdir -p "$CH"
+frames() { ffprobe -v error -count_frames -select_streams v:0 -show_entries stream=nb_read_frames -of default=nw=1:nk=1 "$1" 2>/dev/null | tr -dc 0-9; }
 log() { echo "$(date +%T) $*"; }
 
 publish() { # commit the given paths and push, retrying network errors
@@ -33,10 +34,11 @@ for ((a=0; a<TOTAL; a+=STEP)); do
   [ -s "$f" ] && continue
   for try in 1 2; do
     log "chunk $a-$b (try $try)"
+    if [ "$(frames "$f.tmp.mp4")" = "$((b-a+1))" ]; then mv "$f.tmp.mp4" "$f"; break; fi # a finished render from an interrupted run
     rm -f "$f.tmp.mp4"
     npx remotion render src/index.ts PisaShort "$f.tmp.mp4" --frames=$a-$b --gl=swangle --concurrency=4 --timeout=600000 \
       --codec h264 --crf 16 --log=error --props='{"post":{"msaa":2}}' 2>&1 | grep -v GroupMarker | grep -iE "error" | head -3
-    n=$(ffprobe -v error -count_frames -select_streams v:0 -show_entries stream=nb_read_frames -of csv=p=0 "$f.tmp.mp4" 2>/dev/null)
+    n=$(frames "$f.tmp.mp4")
     if [ "${n:-0}" = "$((b-a+1))" ]; then mv "$f.tmp.mp4" "$f"; break; fi
     log "chunk $a-$b incomplete (${n:-0} frames)"
   done
@@ -50,8 +52,8 @@ ls "$CH"/c_*.mp4 | sort | sed "s/^/file '/; s/$/'/" > "$CH/list.txt"
 OUT="$STORY/tower-saved-by-a-war.mp4"
 ffmpeg -hide_banner -loglevel error -y -f concat -safe 0 -i "$CH/list.txt" -i "$STORY/audio/mix.wav" \
   -map 0:v:0 -map 1:a:0 -c:v copy -c:a aac -b:a 320k -movflags +faststart "$OUT"
-vf=$(ffprobe -v error -count_frames -select_streams v:0 -show_entries stream=nb_read_frames -of csv=p=0 "$OUT")
-ad=$(ffprobe -v error -select_streams a:0 -show_entries stream=duration -of csv=p=0 "$OUT")
+vf=$(frames "$OUT")
+ad=$(ffprobe -v error -select_streams a:0 -show_entries stream=duration -of default=nw=1:nk=1 "$OUT")
 log "final: $vf video frames (want $TOTAL), audio ${ad}s (want 70.6)"
 rm -f "$CH/list.txt"
 MSG="Add final video: The Tower Saved by a War ($vf frames, 1080x1920, with sound)" publish "$OUT"
