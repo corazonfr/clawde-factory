@@ -1,6 +1,6 @@
 # The Tower Saved by a War
 
-Cartoon 3D short (skill: `cartoon-3d-short`). Vertical 1080x1920, target 60-66 s, about 235 words at ~3.7 words/s.
+Cartoon 3D short (skill: `cartoon-3d-short`). Vertical 1080x1920, target 55-70 s, 257 words at ~3.7 words/s.
 Status: **draft script, waiting for approval** (the skill renders only after the script is approved).
 
 ## Facts and sources
@@ -31,7 +31,7 @@ Avoided on purpose: exact grout tonnage and final angle (sources disagree), and 
 | Consequence | By 1990, it was so close to falling that they shut it. So engineers did the opposite of everyone before them. Instead of pushing it up, they took a little soil out from under the high side, one bucket at a time, and let it sink back. | Gates close; engineers with laptops and thin augers; tiny buckets of soil; tower eases back |
 | Callback twist | Eleven years later, it had straightened by about forty centimetres. And then they stopped. On purpose. Because a straight tower in Pisa is just a tower. | Golden hour again, tourists doing the "holding it up" pose; final push-in |
 
-Word count: about 240 (target 210-250).
+Word count: 257, about 69 s at 3.7 words/s (limit 70 s). Trim the sponge or Mussolini line if the voice runs long.
 
 ## Notes for production
 - Voice: one steady, deadpan narrator, English only, no captions.
