@@ -22,7 +22,7 @@ for ((a=0; a<TOTAL; a+=STEP)); do
   for try in 1 2; do
     log "chunk $a-$b (try $try)"
     rm -f "$f.tmp.mp4"
-    npx remotion render src/index.ts GimliShort "$f.tmp.mp4" --frames=$a-$b --gl=angle --concurrency=2 --timeout=600000 \
+    npx remotion render src/index.ts GimliShort "$f.tmp.mp4" --frames=$a-$b --gl=angle --concurrency=1 --timeout=600000 \
       --codec h264 --crf 16 --scale 1.3333 --log=error 2>&1 | grep -v GroupMarker | grep -iE "error" | head -3
     n=$(frames "$f.tmp.mp4")
     if [ "${n:-0}" = "$((b-a+1))" ]; then mv "$f.tmp.mp4" "$f"; break; fi
