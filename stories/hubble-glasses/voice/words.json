@@ -1,0 +1,1092 @@
+[
+{
+"word": "NASA",
+"start": 0.02,
+"end": 0.3
+},
+{
+"word": "spent",
+"start": 0.3,
+"end": 0.62
+},
+{
+"word": "one",
+"start": 0.62,
+"end": 0.94
+},
+{
+"word": "and",
+"start": 0.94,
+"end": 1.08
+},
+{
+"word": "a",
+"start": 1.08,
+"end": 1.14
+},
+{
+"word": "half",
+"start": 1.14,
+"end": 1.36
+},
+{
+"word": "billion",
+"start": 1.36,
+"end": 1.68
+},
+{
+"word": "dollars",
+"start": 1.68,
+"end": 2.14
+},
+{
+"word": "on",
+"start": 2.14,
+"end": 2.36
+},
+{
+"word": "a",
+"start": 2.36,
+"end": 2.5
+},
+{
+"word": "space",
+"start": 2.5,
+"end": 2.7
+},
+{
+"word": "telescope.",
+"start": 2.7,
+"end": 3.4
+},
+{
+"word": "Then",
+"start": 3.73,
+"end": 3.88
+},
+{
+"word": "it",
+"start": 3.88,
+"end": 4.02
+},
+{
+"word": "turned",
+"start": 4.02,
+"end": 4.18
+},
+{
+"word": "out",
+"start": 4.18,
+"end": 4.42
+},
+{
+"word": "to",
+"start": 4.42,
+"end": 4.58
+},
+{
+"word": "need",
+"start": 4.58,
+"end": 4.74
+},
+{
+"word": "glasses.",
+"start": 4.74,
+"end": 5.4
+},
+{
+"word": "April,",
+"start": 5.84,
+"end": 6.32
+},
+{
+"word": "1990.",
+"start": 6.42,
+"end": 7.33
+},
+{
+"word": "The",
+"start": 7.59,
+"end": 7.7
+},
+{
+"word": "shuttle",
+"start": 7.7,
+"end": 7.94
+},
+{
+"word": "Discovery",
+"start": 7.94,
+"end": 8.48
+},
+{
+"word": "carries",
+"start": 8.48,
+"end": 8.9
+},
+{
+"word": "Hubble",
+"start": 8.9,
+"end": 9.18
+},
+{
+"word": "above",
+"start": 9.18,
+"end": 9.58
+},
+{
+"word": "the",
+"start": 9.58,
+"end": 9.8
+},
+{
+"word": "atmosphere,",
+"start": 9.8,
+"end": 10.53
+},
+{
+"word": "where",
+"start": 10.54,
+"end": 10.8
+},
+{
+"word": "the",
+"start": 10.8,
+"end": 10.98
+},
+{
+"word": "stars",
+"start": 10.98,
+"end": 11.22
+},
+{
+"word": "should",
+"start": 11.22,
+"end": 11.46
+},
+{
+"word": "finally",
+"start": 11.46,
+"end": 11.8
+},
+{
+"word": "look",
+"start": 11.8,
+"end": 12.07
+},
+{
+"word": "sharp.",
+"start": 12.08,
+"end": 12.58
+},
+{
+"word": "The",
+"start": 12.75,
+"end": 12.84
+},
+{
+"word": "first",
+"start": 12.84,
+"end": 13.08
+},
+{
+"word": "pictures",
+"start": 13.08,
+"end": 13.46
+},
+{
+"word": "arrive.",
+"start": 13.46,
+"end": 14.01
+},
+{
+"word": "They're",
+"start": 14.29,
+"end": 14.48
+},
+{
+"word": "blurry.",
+"start": 14.48,
+"end": 14.94
+},
+{
+"word": "The",
+"start": 15.29,
+"end": 15.4
+},
+{
+"word": "engineers",
+"start": 15.4,
+"end": 15.76
+},
+{
+"word": "adjust",
+"start": 15.76,
+"end": 16.18
+},
+{
+"word": "the",
+"start": 16.18,
+"end": 16.42
+},
+{
+"word": "focus.",
+"start": 16.42,
+"end": 16.94
+},
+{
+"word": "Still",
+"start": 17.23,
+"end": 17.5
+},
+{
+"word": "blurry,",
+"start": 17.5,
+"end": 17.94
+},
+{
+"word": "they",
+"start": 17.94,
+"end": 18.12
+},
+{
+"word": "adjust",
+"start": 18.12,
+"end": 18.4
+},
+{
+"word": "it",
+"start": 18.4,
+"end": 18.58
+},
+{
+"word": "again.",
+"start": 18.58,
+"end": 19.04
+},
+{
+"word": "Two",
+"start": 19.24,
+"end": 19.52
+},
+{
+"word": "months",
+"start": 19.52,
+"end": 19.72
+},
+{
+"word": "later,",
+"start": 19.72,
+"end": 20.21
+},
+{
+"word": "NASA",
+"start": 20.42,
+"end": 20.68
+},
+{
+"word": "explains",
+"start": 20.68,
+"end": 21.16
+},
+{
+"word": "why.",
+"start": 21.16,
+"end": 21.72
+},
+{
+"word": "The",
+"start": 21.91,
+"end": 22.0
+},
+{
+"word": "main",
+"start": 22.0,
+"end": 22.24
+},
+{
+"word": "mirror,",
+"start": 22.24,
+"end": 22.63
+},
+{
+"word": "2",
+"start": 22.82,
+"end": 22.98
+},
+{
+"word": ".4",
+"start": 22.98,
+"end": 23.5
+},
+{
+"word": "meters",
+"start": 23.5,
+"end": 23.7
+},
+{
+"word": "wide,",
+"start": 23.7,
+"end": 24.24
+},
+{
+"word": "was",
+"start": 24.24,
+"end": 24.6
+},
+{
+"word": "the",
+"start": 24.6,
+"end": 24.76
+},
+{
+"word": "wrong",
+"start": 24.76,
+"end": 24.94
+},
+{
+"word": "shape.",
+"start": 24.94,
+"end": 25.28
+},
+{
+"word": "Its",
+"start": 25.28,
+"end": 25.62
+},
+{
+"word": "edge",
+"start": 25.62,
+"end": 25.94
+},
+{
+"word": "was",
+"start": 25.94,
+"end": 26.1
+},
+{
+"word": "too",
+"start": 26.1,
+"end": 26.34
+},
+{
+"word": "flat,",
+"start": 26.34,
+"end": 26.76
+},
+{
+"word": "by",
+"start": 26.95,
+"end": 27.06
+},
+{
+"word": "less",
+"start": 27.06,
+"end": 27.26
+},
+{
+"word": "than",
+"start": 27.26,
+"end": 27.5
+},
+{
+"word": "one",
+"start": 27.5,
+"end": 27.72
+},
+{
+"word": "-fiftieth",
+"start": 27.72,
+"end": 28.06
+},
+{
+"word": "of",
+"start": 28.06,
+"end": 28.28
+},
+{
+"word": "the",
+"start": 28.28,
+"end": 28.4
+},
+{
+"word": "width",
+"start": 28.4,
+"end": 28.62
+},
+{
+"word": "of",
+"start": 28.62,
+"end": 28.8
+},
+{
+"word": "a",
+"start": 28.8,
+"end": 28.9
+},
+{
+"word": "human",
+"start": 28.9,
+"end": 29.14
+},
+{
+"word": "hair.",
+"start": 29.14,
+"end": 29.62
+},
+{
+"word": "Luckily,",
+"start": 29.85,
+"end": 30.26
+},
+{
+"word": "it",
+"start": 30.26,
+"end": 30.46
+},
+{
+"word": "had",
+"start": 30.46,
+"end": 30.56
+},
+{
+"word": "been",
+"start": 30.56,
+"end": 30.74
+},
+{
+"word": "polished",
+"start": 30.74,
+"end": 31.04
+},
+{
+"word": "very",
+"start": 31.04,
+"end": 31.34
+},
+{
+"word": "carefully.",
+"start": 31.34,
+"end": 31.93
+},
+{
+"word": "Unluckily,",
+"start": 32.01,
+"end": 32.6
+},
+{
+"word": "it",
+"start": 32.6,
+"end": 32.76
+},
+{
+"word": "was",
+"start": 32.76,
+"end": 32.9
+},
+{
+"word": "polished",
+"start": 32.9,
+"end": 33.26
+},
+{
+"word": "carefully",
+"start": 33.26,
+"end": 33.68
+},
+{
+"word": "to",
+"start": 33.68,
+"end": 33.9
+},
+{
+"word": "the",
+"start": 33.9,
+"end": 34.06
+},
+{
+"word": "wrong",
+"start": 34.06,
+"end": 34.24
+},
+{
+"word": "shape.",
+"start": 34.24,
+"end": 34.79
+},
+{
+"word": "The",
+"start": 34.98,
+"end": 35.08
+},
+{
+"word": "tool",
+"start": 35.08,
+"end": 35.3
+},
+{
+"word": "that",
+"start": 35.3,
+"end": 35.48
+},
+{
+"word": "checked",
+"start": 35.48,
+"end": 35.74
+},
+{
+"word": "it",
+"start": 35.74,
+"end": 35.96
+},
+{
+"word": "had",
+"start": 35.96,
+"end": 36.12
+},
+{
+"word": "one",
+"start": 36.12,
+"end": 36.38
+},
+{
+"word": "lens",
+"start": 36.38,
+"end": 36.78
+},
+{
+"word": "sitting",
+"start": 36.78,
+"end": 37.14
+},
+{
+"word": "1",
+"start": 37.14,
+"end": 37.46
+},
+{
+"word": ".3",
+"start": 37.46,
+"end": 37.98
+},
+{
+"word": "millimeters",
+"start": 37.98,
+"end": 38.42
+},
+{
+"word": "out",
+"start": 38.42,
+"end": 38.72
+},
+{
+"word": "of",
+"start": 38.72,
+"end": 38.88
+},
+{
+"word": "place.",
+"start": 38.88,
+"end": 39.34
+},
+{
+"word": "It's",
+"start": 39.7,
+"end": 39.88
+},
+{
+"word": "the",
+"start": 39.88,
+"end": 40.04
+},
+{
+"word": "same",
+"start": 40.04,
+"end": 40.26
+},
+{
+"word": "problem",
+"start": 40.26,
+"end": 40.58
+},
+{
+"word": "as",
+"start": 40.58,
+"end": 40.82
+},
+{
+"word": "bad",
+"start": 40.82,
+"end": 41.08
+},
+{
+"word": "eyesight.",
+"start": 41.08,
+"end": 41.66
+},
+{
+"word": "Light",
+"start": 41.66,
+"end": 41.88
+},
+{
+"word": "from",
+"start": 41.88,
+"end": 42.08
+},
+{
+"word": "the",
+"start": 42.08,
+"end": 42.24
+},
+{
+"word": "edge,",
+"start": 42.24,
+"end": 42.61
+},
+{
+"word": "and",
+"start": 42.76,
+"end": 42.88
+},
+{
+"word": "light",
+"start": 42.88,
+"end": 43.04
+},
+{
+"word": "from",
+"start": 43.04,
+"end": 43.24
+},
+{
+"word": "the",
+"start": 43.24,
+"end": 43.38
+},
+{
+"word": "middle",
+"start": 43.38,
+"end": 43.6
+},
+{
+"word": "land",
+"start": 43.6,
+"end": 43.88
+},
+{
+"word": "in",
+"start": 43.88,
+"end": 44.1
+},
+{
+"word": "different",
+"start": 44.1,
+"end": 44.34
+},
+{
+"word": "places",
+"start": 44.34,
+"end": 44.74
+},
+{
+"word": "so",
+"start": 44.74,
+"end": 45.12
+},
+{
+"word": "nothing",
+"start": 45.12,
+"end": 45.36
+},
+{
+"word": "is",
+"start": 45.36,
+"end": 45.54
+},
+{
+"word": "ever",
+"start": 45.54,
+"end": 45.74
+},
+{
+"word": "quite",
+"start": 45.74,
+"end": 45.96
+},
+{
+"word": "in",
+"start": 45.96,
+"end": 46.16
+},
+{
+"word": "focus,",
+"start": 46.16,
+"end": 46.71
+},
+{
+"word": "and",
+"start": 46.78,
+"end": 47.04
+},
+{
+"word": "the",
+"start": 47.04,
+"end": 47.14
+},
+{
+"word": "fix",
+"start": 47.14,
+"end": 47.32
+},
+{
+"word": "is",
+"start": 47.32,
+"end": 47.5
+},
+{
+"word": "the",
+"start": 47.5,
+"end": 47.66
+},
+{
+"word": "same",
+"start": 47.66,
+"end": 47.88
+},
+{
+"word": "too.",
+"start": 47.88,
+"end": 48.3
+},
+{
+"word": "In",
+"start": 48.47,
+"end": 48.6
+},
+{
+"word": "1993,",
+"start": 48.6,
+"end": 49.53
+},
+{
+"word": "astronauts",
+"start": 50.1,
+"end": 50.22
+},
+{
+"word": "on",
+"start": 50.22,
+"end": 50.56
+},
+{
+"word": "Endeavour",
+"start": 50.56,
+"end": 50.96
+},
+{
+"word": "caught",
+"start": 50.96,
+"end": 51.2
+},
+{
+"word": "Hubble,",
+"start": 51.2,
+"end": 51.62
+},
+{
+"word": "and",
+"start": 51.93,
+"end": 52.0
+},
+{
+"word": "over",
+"start": 52.0,
+"end": 52.22
+},
+{
+"word": "five",
+"start": 52.22,
+"end": 52.52
+},
+{
+"word": "spacewalks",
+"start": 52.52,
+"end": 53.16
+},
+{
+"word": "fitted",
+"start": 53.16,
+"end": 53.5
+},
+{
+"word": "a",
+"start": 53.5,
+"end": 53.72
+},
+{
+"word": "box",
+"start": 53.72,
+"end": 53.88
+},
+{
+"word": "the",
+"start": 53.88,
+"end": 54.16
+},
+{
+"word": "size",
+"start": 54.16,
+"end": 54.4
+},
+{
+"word": "of",
+"start": 54.4,
+"end": 54.5
+},
+{
+"word": "a",
+"start": 54.5,
+"end": 54.64
+},
+{
+"word": "phone",
+"start": 54.64,
+"end": 54.82
+},
+{
+"word": "booth,",
+"start": 54.82,
+"end": 55.11
+},
+{
+"word": "full",
+"start": 55.5,
+"end": 55.64
+},
+{
+"word": "of",
+"start": 55.64,
+"end": 55.78
+},
+{
+"word": "small",
+"start": 55.78,
+"end": 56.08
+},
+{
+"word": "corrective",
+"start": 56.08,
+"end": 56.48
+},
+{
+"word": "mirrors,",
+"start": 56.48,
+"end": 57.19
+},
+{
+"word": "a",
+"start": 57.2,
+"end": 57.42
+},
+{
+"word": "pair",
+"start": 57.42,
+"end": 57.62
+},
+{
+"word": "of",
+"start": 57.62,
+"end": 57.76
+},
+{
+"word": "glasses",
+"start": 57.76,
+"end": 58.1
+},
+{
+"word": "for",
+"start": 58.1,
+"end": 58.38
+},
+{
+"word": "a",
+"start": 58.38,
+"end": 58.47
+},
+{
+"word": "telescope.",
+"start": 58.48,
+"end": 59.0
+},
+{
+"word": "The",
+"start": 59.05,
+"end": 59.16
+},
+{
+"word": "pictures",
+"start": 59.16,
+"end": 59.42
+},
+{
+"word": "came",
+"start": 59.42,
+"end": 59.72
+},
+{
+"word": "back",
+"start": 59.72,
+"end": 59.96
+},
+{
+"word": "sharp,",
+"start": 59.96,
+"end": 60.45
+},
+{
+"word": "and",
+"start": 60.66,
+"end": 60.76
+},
+{
+"word": "the",
+"start": 60.76,
+"end": 60.88
+},
+{
+"word": "backup",
+"start": 60.88,
+"end": 61.16
+},
+{
+"word": "mirror?",
+"start": 61.16,
+"end": 61.55
+},
+{
+"word": "A",
+"start": 61.79,
+"end": 62.06
+},
+{
+"word": "different",
+"start": 62.06,
+"end": 62.3
+},
+{
+"word": "company",
+"start": 62.3,
+"end": 62.68
+},
+{
+"word": "built",
+"start": 62.68,
+"end": 62.96
+},
+{
+"word": "it,",
+"start": 62.96,
+"end": 63.2
+},
+{
+"word": "with",
+"start": 63.38,
+"end": 63.48
+},
+{
+"word": "different",
+"start": 63.48,
+"end": 63.82
+},
+{
+"word": "test",
+"start": 63.82,
+"end": 64.06
+},
+{
+"word": "equipment.",
+"start": 64.06,
+"end": 64.65
+},
+{
+"word": "It",
+"start": 65.08,
+"end": 65.16
+},
+{
+"word": "had",
+"start": 65.16,
+"end": 65.3
+},
+{
+"word": "the",
+"start": 65.3,
+"end": 65.44
+},
+{
+"word": "right",
+"start": 65.44,
+"end": 65.62
+},
+{
+"word": "shape",
+"start": 65.62,
+"end": 65.94
+},
+{
+"word": "all",
+"start": 65.94,
+"end": 66.14
+},
+{
+"word": "along.",
+"start": 66.14,
+"end": 66.66
+},
+{
+"word": "It",
+"start": 66.66,
+"end": 66.9
+},
+{
+"word": "never",
+"start": 66.9,
+"end": 67.1
+},
+{
+"word": "flew.",
+"start": 67.1,
+"end": 67.54
+},
+{
+"word": "It's",
+"start": 67.71,
+"end": 67.84
+},
+{
+"word": "in",
+"start": 67.84,
+"end": 67.92
+},
+{
+"word": "a",
+"start": 67.92,
+"end": 68.02
+},
+{
+"word": "museum",
+"start": 68.02,
+"end": 68.34
+},
+{
+"word": "in",
+"start": 68.34,
+"end": 68.58
+},
+{
+"word": "Washington.",
+"start": 68.58,
+"end": 69.16
+}
+]
