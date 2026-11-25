@@ -1,6 +1,6 @@
 #!/bin/bash
 # Final render of "The Warship That Sank Before It Left the Harbour" on a local GPU (ANGLE), 2K vertical (1440x2560):
-#   1. render VasaShort in 300-frame chunks, skipping chunks already done (restartable), checking every frame count
+#   1. render VasaShort in 100-frame chunks (low free RAM), skipping chunks already done (restartable), checking every frame count
 #   2. join the chunks, add the final mix (audio/mix.wav; Remotion writes a silent track, so map 0:v + 1:a),
 #      re-stamp frames sequentially (the concat demuxer drops frames at chunk seams otherwise), re-encode at crf 19 (keeps the file under GitHub's 100 MB) and check both durations
 # Chunks stay local (not committed). Bundles go to D:/remotion-tmp so the system drive does not fill.
@@ -10,7 +10,7 @@ export TEMP="D:/remotion-tmp" TMP="D:/remotion-tmp"
 REPO=$(git rev-parse --show-toplevel)
 STORY="$REPO/stories/vasa-warship"
 CH="$STORY/render/chunks"
-TOTAL=2115; STEP=300
+TOTAL=2115; STEP=100
 mkdir -p "$CH"
 frames() { ffprobe -v error -count_frames -select_streams v:0 -show_entries stream=nb_read_frames -of default=nw=1:nk=1 "$1" 2>/dev/null | tr -dc 0-9; }
 log() { echo "$(date +%T) $*"; }
