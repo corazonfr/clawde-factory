@@ -9,3 +9,5 @@ Sources: NASA (Hubble's mirror flaw), ESA/Hubble, Smithsonian National Air and S
 
 YouTube tags: hubble, hubble space telescope, hubble mirror flaw, nasa, space history, science shorts, costar, space shuttle
 Privacy: YouTube public; TikTok PUBLIC_TO_EVERYONE (sent as a draft: tap Post in the TikTok app). Category 27 (Education), language en.
+
+Posted 2026-11-25 09:00: YouTube https://www.youtube.com/watch?v=tA6pAmiSGNI (public, category 27, en). TikTok sent to inbox drafts.
