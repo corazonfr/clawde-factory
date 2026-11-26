@@ -9,3 +9,5 @@ Sources: Wikipedia (Lake Peigneur), 64 Parishes (Lake Peigneur Drilling Accident
 
 YouTube tags: lake peigneur, lake peigneur disaster, louisiana history, salt mine, drilling accident, sinkhole, history shorts, engineering disaster
 Privacy: YouTube public; TikTok PUBLIC_TO_EVERYONE (sent as a draft: tap Post in the TikTok app). Category 27 (Education), language en.
+
+Posted 2026-11-26 09:00: YouTube https://www.youtube.com/watch?v=16X7rXWd_YQ (public, category 27, en). TikTok: sent to inbox drafts (PostOnce post fdede389), tap Post in the app.
